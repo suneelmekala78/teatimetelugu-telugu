@@ -1,0 +1,15 @@
+.wrapper {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 20px;
+}
+
+.wrapper button {
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: #eee;
+  border: none;
+  cursor: pointer;
+}

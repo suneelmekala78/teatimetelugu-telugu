@@ -1,0 +1,120 @@
+.footer {
+  width: 100%;
+}
+
+/* ================= TOP ================= */
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 2px 20px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+/* links */
+
+.ig {
+  color: #e1306c;
+}
+.fb {
+  color: #004ff8;
+}
+.x {
+  color: #000000;
+}
+.ln {
+  color: #0077b5;
+}
+.yt {
+  color: #ff0000;
+}
+
+.links {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.links a {
+  font-size: 14px;
+  color: #000;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.links a:hover {
+  color: #f25a23;
+}
+
+/* ================= BOTTOM ================= */
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 16px 20px;
+  font-size: 14px;
+  background: #000;
+  color: #fff;
+}
+
+.copy {
+  color: #cbd5e1;
+}
+
+.copy a {
+  color: #f25a23;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* socials */
+
+.socials {
+  display: flex;
+  gap: 12px;
+}
+
+.socials a {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 2px solid #f25a23;
+
+  background: #fff;
+
+  font-size: 14px;
+  transition: all 0.25s ease;
+}
+
+.socials a:hover {
+  transform: translateY(-2px);
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .top,
+  .bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+  }
+
+  .links {
+    justify-content: center;
+  }
+}

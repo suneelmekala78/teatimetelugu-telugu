@@ -1,0 +1,69 @@
+import Link from "next/link";
+import Image from "next/image";
+import SectionTitle from "@/components/common/titles/SectionTitle";
+import { getTrendingNews } from "@/lib/requests";
+import styles from "./MostViewed.module.css";
+
+/* ================= TYPES ================= */
+
+interface NewsItem {
+  _id: string;
+  newsId: string;
+  mainUrl: string;
+  title: { te: string };
+  category: { te: string; en: string };
+}
+
+/* ================= SERVER COMPONENT ================= */
+
+export default async function MostViewed() {
+  let news: NewsItem[] = [];
+
+  try {
+    const res = await getTrendingNews();
+
+    if (res?.status === "success") {
+      news = res.news?.slice(0, 6);
+    }
+  } catch {
+    news = [];
+  }
+
+  if (!news.length) return null;
+
+  return (
+    <section className={styles.section}>
+      <SectionTitle title="అత్యంత వీక్షించబడినవి" />
+
+      <div className={styles.grid}>
+        {news.map((item) => (
+          <Link
+            key={item._id}
+            href={`/${item.category.en}/${item.newsId}`}
+            className={styles.card}
+          >
+            <div className={styles.imageWrap}>
+              <Image
+                src={item.mainUrl}
+                alt={item.title.te}
+                fill
+                sizes="250px"
+                className={styles.image}
+              />
+            </div>
+
+            <div className={styles.content}>
+              <span className={styles.category}>
+                {item.category.te}
+              </span>
+
+              <h3 className={styles.title}>
+                {item.title.te}
+              </h3>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}

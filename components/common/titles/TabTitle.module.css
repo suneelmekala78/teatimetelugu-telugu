@@ -1,0 +1,59 @@
+.container {
+  width: 100%;
+  height: 150px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+  overflow: hidden;
+
+  background: black;
+  color: white;
+}
+
+/* background image */
+.bg {
+  object-fit: cover;
+  opacity: 0.4;
+  z-index: 0;
+}
+
+/* title */
+.title {
+  position: relative;
+  z-index: 2;
+
+  font-size: 40px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+/* gallery variant */
+.gallery {
+  margin: 0 auto;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 600px) {
+  .container {
+    height: 100px;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 400px) {
+  .container {
+    height: 80px;
+  }
+
+  .title {
+    font-size: 20px;
+    padding: 10px;
+  }
+}

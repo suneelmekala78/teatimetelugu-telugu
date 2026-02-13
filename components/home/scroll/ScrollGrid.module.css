@@ -1,0 +1,131 @@
+.container {
+  width: 100%;
+}
+
+/* ===== WRAPPER ===== */
+
+.wrapper {
+  position: relative;
+  margin-top: 16px;
+}
+
+/* ===== SLIDER ===== */
+
+.slider {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #000;
+}
+
+.item {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.5s ease, opacity 0.4s ease;
+}
+
+.image {
+  object-fit: cover;
+}
+
+/* ===== STATES ===== */
+
+.active {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+}
+
+.rightEnter {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.leftEnter {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.leftExit {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.rightExit {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* ===== TITLE ===== */
+
+.title {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 22px;
+  color: white;
+  font-weight: 700;
+  font-size: 20px;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9),
+    transparent
+  );
+}
+
+/* ===== BUTTONS ===== */
+
+.btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(6px);
+  color: white;
+}
+
+.left {
+  left: 12px;
+}
+
+.right {
+  right: 12px;
+}
+
+/* ===== DOTS ===== */
+
+.dots {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  border: none;
+}
+
+.activeDot {
+  width: 20px;
+  border-radius: 20px;
+  background: #ff5e62;
+}

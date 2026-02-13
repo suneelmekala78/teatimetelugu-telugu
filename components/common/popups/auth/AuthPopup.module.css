@@ -1,0 +1,96 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.65);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+
+  animation: fade 0.2s ease;
+}
+
+.popup {
+  position: relative;
+
+  background: white;
+  width: 100%;
+  max-width: 420px;
+
+  padding: 28px;
+  border-radius: 14px;
+
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+
+  animation: slide 0.25s ease;
+}
+
+.close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  color: #777;
+}
+
+.close:hover {
+  color: #111;
+}
+
+.title {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 22px;
+}
+
+/* google button */
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+
+  padding: 12px;
+
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+
+  transition: 0.2s;
+}
+
+.googleBtn:hover {
+  background: #f6f6f6;
+}
+
+/* animations */
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

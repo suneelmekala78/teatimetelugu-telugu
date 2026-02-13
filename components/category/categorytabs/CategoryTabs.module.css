@@ -1,0 +1,92 @@
+/* ================= CONTAINER ================= */
+
+.container {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #fff;
+  padding: 10px;
+}
+
+/* ================= CARD ================= */
+
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+
+  flex: 1 1 calc(25% - 10px); /* desktop → 4 per row */
+  height: 100px;
+
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* image */
+.image {
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.05);
+}
+
+/* overlay */
+.title {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.active {
+  color: #ff5e62;
+}
+
+/* ================= RESPONSIVE ================= */
+
+/* tablet */
+@media (max-width: 900px) {
+  .card {
+    flex: 1 1 calc(33.33% - 10px);
+  }
+}
+
+/* mobile → horizontal scroll instead of wrap */
+@media (max-width: 600px) {
+  .container {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 5px;
+  }
+
+  .container::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .container::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 6px;
+  }
+
+  .card {
+    flex: 0 0 160px;
+    height: 70px;
+    scroll-snap-align: start;
+  }
+
+  .title {
+    font-size: 14px;
+  }
+}

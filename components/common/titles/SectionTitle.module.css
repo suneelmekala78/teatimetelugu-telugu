@@ -1,0 +1,61 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0;
+}
+
+/* ---------- LEFT PART ---------- */
+.left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+/* ---------- TITLE BADGE ---------- */
+.text {
+  font-size: 18px;
+  font-weight: 900;
+  color: white;
+  background: linear-gradient(135deg, #ff5e62, #ff2d75);
+  padding: 0 22px;
+  margin-right: 10px;
+
+  /* arrow shape */
+  clip-path: polygon(0 0, 90% 0, 100% 50%, 90% 100%, 0 100%, 6% 50%);
+}
+
+/* ---------- DOT ---------- */
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2962ff;
+  margin-right: 10px;
+}
+
+/* ---------- LINE ---------- */
+.line {
+  flex: 1;
+  height: 4px;
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+/* ---------- SEE ALL ---------- */
+.seeAll {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ff2d75;
+  transition: 0.2s;
+  white-space: nowrap;
+  margin-left: 10px;
+}
+
+.seeAll:hover {
+  color: #e02163;
+  transform: translateX(3px);
+}

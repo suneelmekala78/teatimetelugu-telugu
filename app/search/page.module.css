@@ -1,0 +1,9 @@
+.container {
+  margin: auto;
+}
+
+.loading {
+  text-align: center;
+  margin-top: 40px;
+  color: #666;
+}

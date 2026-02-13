@@ -1,0 +1,652 @@
+/* Navbar.module.css */
+
+.navbar {
+  width: 100%;
+  position: sticky;
+  top: -146px;
+  z-index: 999;
+  background: white;
+  transition: box-shadow 0.3s ease;
+}
+
+.navbar.scrolled {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ---------- TOP BAR ---------- */
+.topBar {
+  background: #e5e5e5;
+  padding: 8px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.topBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-weight: 900;
+}
+
+.date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #000000;
+}
+
+.topLinks {
+  display: flex;
+  gap: 15px;
+}
+
+.topLinks a {
+  color: #000000;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.topLinks a:hover {
+  color: #e04343;
+  text-decoration: underline;
+}
+
+.socials {
+  display: flex;
+  gap: 12px;
+}
+
+.ig {
+  color: #e1306c;
+}
+.fb {
+  color: #004ff8;
+}
+.x {
+  color: #000000;
+}
+.ln {
+  color: #0077b5;
+}
+.yt {
+  color: #ff0000;
+}
+
+.socials a {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 2px solid #e04343;
+  transition: all 0.3s ease;
+}
+
+.socials a:hover {
+  border: 2px solid #ff1818;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(224, 67, 67, 0.3);
+}
+
+/* ---------- LOGO ---------- */
+.logoRow {
+  padding: 4px 20px;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.logo {
+  width: auto;
+  height: auto;
+  max-width: 140px;
+  object-fit: contain;
+}
+
+/* ---------- MENU ---------- */
+.menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #000;
+  padding: 0 20px;
+  position: relative;
+}
+
+.tabsContainer {
+  /* overflow-x: auto; */
+  flex: 1;
+}
+
+.tabsContainer::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabsContainer::-webkit-scrollbar-track {
+  background: #333;
+}
+
+.tabsContainer::-webkit-scrollbar-thumb {
+  background: #f25a23;
+  border-radius: 2px;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  flex-wrap: nowrap;
+}
+
+.tabLink {
+  color: white;
+  margin-right: 25px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: color 0.2s;
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 8px 0;
+  position: relative;
+}
+
+.tabLink:hover {
+  color: #f25a23;
+}
+
+.tabLink.active {
+  color: #f25a23;
+}
+
+.tabLink.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #f25a23;
+  border-radius: 2px;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-shrink: 0;
+}
+
+/* ---------- SEARCH ---------- */
+.searchBtn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: white;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.searchBtn:hover {
+  background: #222;
+}
+
+.searchForm {
+  display: flex;
+  align-items: center;
+  background: #222;
+  padding: 6px 12px;
+  border-radius: 20px;
+  gap: 8px;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.searchForm:focus-within {
+  border-color: #f25a23;
+  background: #333;
+}
+
+.searchInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: white;
+  font-size: 14px;
+  width: 180px;
+}
+
+.searchInput::placeholder {
+  color: #aaa;
+}
+
+.searchButton {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  transition: color 0.3s;
+}
+
+.searchButton:hover {
+  color: #f25a23;
+}
+
+/* ---------- BUTTONS ---------- */
+.langBtn {
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  padding: 2px 10px;
+  border: 2px solid #f25a23;
+  background: #f25a23;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.langBtn:hover {
+  background: white;
+  color: #f25a23;
+}
+
+.loginBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  padding: 2px 10px;
+  border: 2px solid #2379f2;
+  background: #2379f2;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.loginBtn:hover {
+  background: white;
+  color: #2379f2;
+}
+
+.logoutBtn {
+  color: white;
+  background: #dc3545;
+  border: 2px solid #dc3545;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.logoutBtn:hover {
+  background: white;
+  color: #dc3545;
+}
+
+/* ---------- MOBILE ---------- */
+.mobileHeader {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.mobileLogo {
+  width: auto;
+  height: auto;
+  max-width: 120px;
+}
+
+.mobileActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.mobileSearchBtn,
+.mobileMenuBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #333;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobileSearchBtn:hover,
+.mobileMenuBtn:hover {
+  background: #f5f5f5;
+}
+
+/* Mobile Menu */
+.mobileMenu {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 280px;
+  height: 100vh;
+  background: #111;
+  z-index: 1000;
+  transition: left 0.3s ease;
+  overflow-y: auto;
+}
+
+.mobileMenuOpen {
+  left: 0;
+}
+
+.mobileMenuContent {
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileLink {
+  color: white;
+  padding: 12px 0;
+  font-size: 16px;
+  text-decoration: none;
+  border-bottom: 1px solid #333;
+  transition: all 0.3s;
+}
+
+.mobileLink:hover {
+  color: #f25a23;
+  padding-left: 10px;
+}
+
+.mobileLink.active {
+  color: #f25a23;
+  font-weight: 600;
+}
+
+.mobileBottomActions {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mobileLangBtn,
+.mobileLoginBtn,
+.mobileLogoutBtn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.mobileLangBtn {
+  background: #f25a23;
+  color: white;
+}
+
+.mobileLoginBtn {
+  background: #2379f2;
+  color: white;
+}
+
+.mobileLogoutBtn {
+  background: #dc3545;
+  color: white;
+}
+
+.mobileLoginBtn:hover,
+.mobileLogoutBtn:hover,
+.mobileLangBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* Mobile Search */
+.mobileSearchOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  padding: 15px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.mobileSearchOpen {
+  transform: translateY(0);
+}
+
+.mobileSearchForm {
+  display: flex;
+  gap: 10px;
+}
+
+.mobileSearchInput {
+  flex: 1;
+  padding: 10px 15px;
+  border: 2px solid #eee;
+  border-radius: 25px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.mobileSearchInput:focus {
+  border-color: #f25a23;
+}
+
+.mobileSearchButton {
+  background: #f25a23;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.mobileSearchButton:hover {
+  background: #e04b1a;
+}
+
+/* Logout Modal */
+.logoutModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.logoutModalContent {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.logoutModalText {
+  margin-bottom: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.logoutModalActions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.logoutCancelBtn,
+.logoutConfirmBtn {
+  padding: 8px 25px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+  min-width: 100px;
+}
+
+.logoutCancelBtn {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.logoutCancelBtn:hover {
+  background: #e0e0e0;
+}
+
+.logoutConfirmBtn {
+  background: #dc3545;
+  color: white;
+}
+
+.logoutConfirmBtn:hover {
+  background: #c82333;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1100px) {
+  .tabs {
+    gap: 0;
+  }
+
+  .tabLink {
+    margin-right: 15px;
+    font-size: 14px;
+  }
+
+  .searchInput {
+    width: 150px;
+  }
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    top: 0;
+  }
+
+  .menu {
+    display: none;
+  }
+
+  .mobileHeader {
+    display: flex;
+  }
+
+  .topBar {
+    display: none;
+    padding: 8px 16px;
+  }
+
+  .logoRow {
+    display: none;
+  }
+
+  .topBarLeft {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .topLinks {
+    gap: 12px;
+  }
+
+  .socials {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+@media (max-width: 480px) {
+  .mobileMenu {
+    width: 85%;
+  }
+
+  .mobileHeader {
+    padding: 8px 12px;
+  }
+
+  .mobileLogo {
+    max-width: 100px;
+  }
+
+  .topLinks a {
+    font-size: 13px;
+  }
+
+  .date {
+    font-size: 13px;
+  }
+
+  .socials a {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .logoutModalContent {
+    padding: 20px;
+  }
+
+  .logoutCancelBtn,
+  .logoutConfirmBtn {
+    min-width: 80px;
+    padding: 8px 20px;
+  }
+}
+
+/* Prevent horizontal scroll on mobile */
+@media (max-width: 900px) {
+  body {
+    overflow-x: hidden;
+  }
+}

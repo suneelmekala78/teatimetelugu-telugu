@@ -1,0 +1,107 @@
+/* ================= CONTAINER ================= */
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* ================= CARD ================= */
+
+.card {
+  max-width: 520px;
+  width: 100%;
+  border-radius: 14px;
+  text-align: center;
+}
+
+/* ================= 404 NUMBER ================= */
+
+.code {
+  font-size: 110px;
+  font-weight: 900;
+  line-height: 1;
+  color: #ff5e62;
+  margin-bottom: 12px;
+}
+
+/* ================= TITLE ================= */
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+/* ================= DESC ================= */
+
+.desc {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 28px;
+}
+
+/* ================= BUTTONS ================= */
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+
+  transition: all 0.2s ease;
+}
+
+/* primary = brand */
+.primaryBtn {
+  background: #ff5e62;
+  color: white;
+}
+
+.primaryBtn:hover {
+  background: #e0484d;
+  transform: translateY(-2px);
+}
+
+/* secondary */
+.secondaryBtn {
+  background: #f1f1f1;
+  color: #333;
+  border: 1px solid #e5e7eb;
+}
+
+.secondaryBtn:hover {
+  background: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 600px) {
+  .code {
+    font-size: 80px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .card {
+    padding: 36px 20px;
+  }
+}

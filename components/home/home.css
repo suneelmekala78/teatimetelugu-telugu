@@ -1,0 +1,35 @@
+.duo-content {
+  display: flex;
+}
+
+.duo-content-left {
+  width: 67%;
+}
+
+.duo-content-right {
+  width: 33%;
+  padding-left: 20px;
+}
+
+@media (max-width: 700px) {
+  .duo-content {
+    flex-direction: column;
+  }
+
+  .duo-content-left,
+  .duo-content-right {
+    width: 100%;
+    padding: 0;
+  }
+}
+
+.movies-tables-section {
+  display: flex;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .movies-tables-section {
+    flex-direction: column;
+  }
+}
