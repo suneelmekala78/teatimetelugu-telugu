@@ -4,7 +4,7 @@ const BASE = process.env.NEXT_PUBLIC_API_URL!;
 
 export async function clientFetch<T>(
   path: string,
-  init?: RequestInit
+  init?: RequestInit,
 ): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     credentials: "include",

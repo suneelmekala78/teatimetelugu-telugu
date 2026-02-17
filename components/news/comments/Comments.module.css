@@ -13,6 +13,8 @@
   background: #fafafa;
   transition: all 0.2s ease;
   resize: vertical;
+  font-family: inherit;
+  font-size: 15px;
 }
 
 .textarea:focus {

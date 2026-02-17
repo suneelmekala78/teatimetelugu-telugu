@@ -64,10 +64,11 @@
   position: absolute;
   bottom: 0;
   width: 100%;
-  padding: 22px;
+  padding: 10px 20px;
   color: white;
   font-weight: 700;
   font-size: 20px;
+  line-height: 26px;
 
   background: linear-gradient(
     to top,

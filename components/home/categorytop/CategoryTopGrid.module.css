@@ -69,7 +69,14 @@
 
 .content {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.subCategory {
+  font-size: 14px;
+  font-weight: 600;
+  color: #888;
 }
 
 .title {

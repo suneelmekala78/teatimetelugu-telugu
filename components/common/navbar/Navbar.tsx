@@ -127,16 +127,36 @@ export default function Navbar() {
           </div>
 
           <div className={styles.socials}>
-            <a href="#" aria-label="Facebook" className={styles.fb}>
+            <a
+              href="https://www.facebook.com/profile.php?id=61582469079953"
+              target="_blank"
+              aria-label="Facebook"
+              className={styles.fb}
+            >
               <FaFacebookF />
             </a>
-            <a href="#" aria-label="YouTube" className={styles.yt}>
+            <a
+              href="https://www.youtube.com/@TeaTimeTelugu-eet"
+              target="_blank"
+              aria-label="YouTube"
+              className={styles.yt}
+            >
               <FaYoutube />
             </a>
-            <a href="#" aria-label="Twitter" className={styles.x}>
+            <a
+              href="https://x.com/TeaTimeTelugu"
+              target="_blank"
+              aria-label="Twitter"
+              className={styles.x}
+            >
               <FaXTwitter />
             </a>
-            <a href="#" aria-label="Instagram" className={styles.ig}>
+            <a
+              href="https://www.instagram.com/teatime_telugu/"
+              target="_blank"
+              aria-label="Instagram"
+              className={styles.ig}
+            >
               <FaInstagram />
             </a>
           </div>
@@ -189,7 +209,7 @@ export default function Navbar() {
               className={styles.langBtn}
             >
               ENGLISH
-            </a> 
+            </a>
 
             {user ? (
               <button
@@ -200,7 +220,11 @@ export default function Navbar() {
                 <MdLogout />
               </button>
             ) : (
-              <div className={styles.loginBtn} onClick={() => setIsJoin(true)} title="Login">
+              <div
+                className={styles.loginBtn}
+                onClick={() => setIsJoin(true)}
+                title="Login"
+              >
                 <MdLogin />
                 <span>Login</span>
               </div>
@@ -257,7 +281,7 @@ export default function Navbar() {
 
             <div className={styles.mobileBottomActions}>
               <a
-                href="https://en.teatimetelugu.com"
+                href={redirectUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.mobileLangBtn}
@@ -273,13 +297,12 @@ export default function Navbar() {
                   <MdLogout /> లాగ్ అవుట్
                 </button>
               ) : (
-                <Link
-                  href="/login"
+                <button
                   className={styles.mobileLoginBtn}
                   onClick={() => setMobileOpen(false)}
                 >
                   <MdLogin /> లాగిన్
-                </Link>
+                </button>
               )}
             </div>
           </div>
@@ -305,10 +328,7 @@ export default function Navbar() {
         </div> */}
       </header>
 
-      <AuthPopup
-        open={isJoin}
-        onClose={() => setIsJoin(false)}
-      />
+      <AuthPopup open={isJoin} onClose={() => setIsJoin(false)} />
 
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (

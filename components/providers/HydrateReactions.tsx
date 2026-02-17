@@ -12,13 +12,8 @@ export default function HydrateReactions({
 }) {
   const setReactions = useUserStore((s) => s.setReactions);
 
-  const hydrated = useRef(false); // ✅ prevents overwrite
-
   useEffect(() => {
-    if (!hydrated.current) {
-      setReactions(reactions);
-      hydrated.current = true;
-    }
+    setReactions(reactions); 
   }, [reactions, setReactions]);
 
   return children;

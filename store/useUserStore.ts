@@ -44,7 +44,6 @@ export const useUserStore = create<UserState>((set) => ({
   logout: () =>
     set({
       user: null,
-      reactions: [],
     }),
 
   updateUser: (data) =>

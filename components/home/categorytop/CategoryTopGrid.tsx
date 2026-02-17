@@ -12,6 +12,7 @@ interface NewsItem {
   mainUrl: string;
   title: { te: string };
   category: { en: string };
+  subCategory: { te: string };
 }
 
 /* ================= CATEGORY CONFIG ================= */
@@ -46,7 +47,7 @@ async function getCategoryPosts(category: string): Promise<NewsItem[]> {
 export default async function CategoryTopGrid() {
   // 🔥 parallel fetching (faster)
   const results = await Promise.all(
-    CATEGORIES.map((c) => getCategoryPosts(c.key))
+    CATEGORIES.map((c) => getCategoryPosts(c.key)),
   );
 
   return (
@@ -78,6 +79,7 @@ export default async function CategoryTopGrid() {
                   </div>
 
                   <div className={styles.content}>
+                    <p className={styles.subCategory}>{post.subCategory.te}</p>
                     <h3 className={styles.title}>{post.title.te}</h3>
                   </div>
                 </Link>
