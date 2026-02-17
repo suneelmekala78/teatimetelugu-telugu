@@ -20,7 +20,7 @@ import { MdLogout, MdLogin } from "react-icons/md";
 import styles from "./Navbar.module.css";
 import { useUserStore } from "@/store/useUserStore";
 import { FaCalendarDays, FaXTwitter } from "react-icons/fa6";
-import AuthPopup from "../popups/auth/AuthPopup";
+import AuthPopupWrapper from "../popups/auth/AuthPopupWrapper";
 
 /* ---------------- NAV TABS ---------------- */
 
@@ -328,7 +328,7 @@ export default function Navbar() {
         </div> */}
       </header>
 
-      <AuthPopup open={isJoin} onClose={() => setIsJoin(false)} />
+      <AuthPopupWrapper open={isJoin} onClose={() => setIsJoin(false)} />
 
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (

@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
-import Navbar from "@/components/common/navbar/Navbar";
 import Footer from "@/components/common/footer/Footer";
 import NetworkProvider from "@/components/providers/NetworkProvider";
-// import { getServerUser } from "@/lib/server/session";
-// import HydrateUser from "@/components/providers/HydrateUser";
 import AuthBootstrap from "@/components/providers/AuthBootstrap";
+import NavbarWrapper from "@/components/common/navbar/NavbarWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +32,7 @@ export default async function RootLayout({
         <AuthBootstrap>
           {/* <HydrateUser user={user}> */}
           <div className="page-container">
-            <Navbar />
+            <NavbarWrapper />
             <NetworkProvider>{children}</NetworkProvider>
             <Footer />
           </div>

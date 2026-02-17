@@ -22,7 +22,7 @@ import {
   dislikeNewsComment,
   deleteNewsComment,
 } from "@/lib/requests-client";
-import AuthPopup from "@/components/common/popups/auth/AuthPopup";
+import AuthPopupWrapper from "@/components/common/popups/auth/AuthPopupWrapper";
 
 /* ---------------- types ---------------- */
 
@@ -505,7 +505,7 @@ export default function CommentsClient({ newsId, initialComments }: Props) {
         </div>
       )}
 
-      <AuthPopup open={isJoin} onClose={() => setIsJoin(false)} />
+      <AuthPopupWrapper open={isJoin} onClose={() => setIsJoin(false)} />
     </>
   );
 }

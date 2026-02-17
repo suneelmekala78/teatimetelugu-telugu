@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 import { useUserStore } from "@/store/useUserStore";
 import { addNewsReaction, addGalleryReaction } from "@/lib/requests-client";
-import AuthPopup from "@/components/common/popups/auth/AuthPopup";
+import AuthPopupWrapper from "@/components/common/popups/auth/AuthPopupWrapper";
 
 /* ---------------- types ---------------- */
 
@@ -102,7 +102,7 @@ export default function Reactions({ newsId, isGallery }: Props) {
         </div>
       </div>
 
-      <AuthPopup open={isJoin} onClose={() => setIsJoin(false)} />
+      <AuthPopupWrapper open={isJoin} onClose={() => setIsJoin(false)} />
     </>
   );
 }
