@@ -1,5 +1,8 @@
 import type { MetadataRoute } from "next";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 1800;
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 const SITE_BASE = (
   process.env.NEXT_PUBLIC_CLIENT_URL ||
@@ -10,6 +13,7 @@ const SITE_BASE = (
 const PAGE_SIZE = 100;
 const MAX_ITEMS = 5000;
 const MAX_PAGES = Math.ceil(MAX_ITEMS / PAGE_SIZE);
+const REQUEST_TIMEOUT_MS = 8000;
 
 type ChangeFreq = MetadataRoute.Sitemap[number]["changeFrequency"];
 
@@ -62,11 +66,23 @@ async function fetchJson<T>(path: string, params: Record<string, string | number
     }, {})
   ).toString();
 
-  const res = await fetch(`${API_BASE}${path}?${query}`, {
-    next: { revalidate: 1800 },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  if (!res.ok) return null;
+  let res: Response | null = null;
+
+  try {
+    res = await fetch(`${API_BASE}${path}?${query}`, {
+      next: { revalidate },
+      signal: controller.signal,
+    });
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  if (!res?.ok) return null;
 
   return (await res.json()) as T;
 }

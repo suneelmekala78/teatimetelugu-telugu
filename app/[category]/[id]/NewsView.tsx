@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Fragment } from "react";
 import styles from "./NewsView.module.css";
 import Reactions from "@/components/news/reactions/Reactions";
 import { FaCalendarAlt } from "react-icons/fa";
@@ -18,7 +19,54 @@ type Props = {
   suggested: any[];
 };
 
+const INLINE_AD_SLOT = "3315432893";
+const MAX_INLINE_ADS = 3;
+
+function splitDescriptionForAds(html: string) {
+  if (!html?.trim()) return [];
+
+  const marker = "<!--__TTT_INLINE_AD__-->";
+  const tagPattern =
+    /(<p\b[^>]*>[\s\S]*?<\/p>|<img\b[^>]*\/?>|<iframe\b[^>]*>[\s\S]*?<\/iframe>|<video\b[^>]*>[\s\S]*?<\/video>)/gi;
+
+  let output = "";
+  let lastIndex = 0;
+  let score = 0;
+  let adCount = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = tagPattern.exec(html)) !== null) {
+    const matchedTag = match[0];
+    const chunkEnd = tagPattern.lastIndex;
+
+    output += html.slice(lastIndex, chunkEnd);
+
+    if (/^<p\b/i.test(matchedTag.trim())) {
+      score += 1;
+    } else if (/^<(img|iframe|video)\b/i.test(matchedTag.trim())) {
+      score += 2;
+    }
+
+    if (score >= 3 && adCount < MAX_INLINE_ADS) {
+      output += marker;
+      score = 0;
+      adCount += 1;
+    }
+
+    lastIndex = chunkEnd;
+  }
+
+  output += html.slice(lastIndex);
+
+  return output
+    .split(marker)
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+}
+
 export default function NewsView({ news, suggested }: Props) {
+  const descriptionHtml = news?.description?.te?.withTags || "";
+  const contentSegments = splitDescriptionForAds(descriptionHtml);
   const date = new Date(news.createdAt);
 
   const time = new Intl.DateTimeFormat("te-IN", {
@@ -40,10 +88,6 @@ export default function NewsView({ news, suggested }: Props) {
       {/* ========= LEFT ========= */}
       <div className={styles.left}>
         <h1 className={styles.title}>{news?.title?.te}</h1>
-        {/* DH AD */}
-        <AdBlock>
-          <SmartAdUnit slot="3315432893" />
-        </AdBlock>
 
         <div className={styles.metaflex}>
           <div className={styles.meta}>
@@ -67,12 +111,22 @@ export default function NewsView({ news, suggested }: Props) {
           />
         </div>
 
-        <div
-          className={styles.content}
-          dangerouslySetInnerHTML={{
-            __html: news?.description?.te?.withTags,
-          }}
-        />
+        {contentSegments.map((segment, index) => (
+          <Fragment key={`content-${index}`}>
+            <div
+              className={styles.content}
+              dangerouslySetInnerHTML={{
+                __html: segment,
+              }}
+            />
+
+            {index < contentSegments.length - 1 && (
+              <AdBlock>
+                <SmartAdUnit slot={INLINE_AD_SLOT} />
+              </AdBlock>
+            )}
+          </Fragment>
+        ))}
 
         <Reactions newsId={news._id} isGallery={false} />
         <CommentsServer newsId={news._id} />

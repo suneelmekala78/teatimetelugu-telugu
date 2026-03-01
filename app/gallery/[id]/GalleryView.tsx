@@ -39,12 +39,6 @@ export default function GalleryView({ gallery, suggested }: Props) {
       {/* LEFT */}
       <div className={styles.left}>
         <h1 className={styles.title}>{gallery?.title?.te}</h1>
-        {/* DH AD */}
-        <AdBlock>
-          <SmartAdUnit
-            slot="3315432893"
-          />
-        </AdBlock>
 
         <div className={styles.metaflex}>
           <div className={styles.meta}>
@@ -73,6 +67,13 @@ export default function GalleryView({ gallery, suggested }: Props) {
           }}
         />
 
+        {/* DH AD */}
+        <AdBlock>
+          <SmartAdUnit
+            slot="3315432893"
+          />
+        </AdBlock>
+        
         {/* GRID */}
         <div className={styles.grid}>
           {gallery.galleryPics.map((pic: string, i: number) => (

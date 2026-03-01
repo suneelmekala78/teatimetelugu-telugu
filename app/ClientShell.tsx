@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import PopupPoster from "@/components/common/popups/poster/PopupPoster";
 
 export default function ClientShell({
@@ -8,7 +9,12 @@ export default function ClientShell({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
   const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
 
   useEffect(() => {
     const lastShown = localStorage.getItem("ttt-te-popupLastShown");

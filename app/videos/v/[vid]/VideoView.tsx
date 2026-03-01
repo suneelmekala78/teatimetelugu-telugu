@@ -4,6 +4,7 @@ import SectionTitle from "@/components/common/titles/SectionTitle";
 import SmartAdUnit from "@/components/google-ads/SmartAdUnit";
 import AdBlock from "@/components/google-ads/AdBlock";
 import Social from "@/components/news/social/Social";
+import NewsShare from "@/components/common/share/NewsShare";
 import Link from "next/link";
 import { FaCalendarAlt } from "react-icons/fa";
 
@@ -38,16 +39,16 @@ export default function VideoView({ video, suggested, similar }: Props) {
           <span className={styles.label}>వీడియో:</span>
           {video?.title?.te}
         </h1>
-        {/* DH AD */}
-        <AdBlock>
-          <SmartAdUnit
-            slot="3315432893"
-          />
-        </AdBlock>
 
-        <p className={styles.date}>
-          <FaCalendarAlt /> {formattedDate}
-        </p>
+        <div className={styles.metaflex}>
+          <div className={styles.meta}>
+            <span>
+              <FaCalendarAlt /> {formattedDate}
+            </span>
+          </div>
+
+          <NewsShare title={video?.title?.te || "వీడియో"} />
+        </div>
 
         {/* VIDEO */}
         <div className={styles.player}>
@@ -57,6 +58,13 @@ export default function VideoView({ video, suggested, similar }: Props) {
             allowFullScreen
           />
         </div>
+        
+        {/* DH AD */}
+        <AdBlock>
+          <SmartAdUnit
+            slot="3315432893"
+          />
+        </AdBlock>
 
         {/* RELATED */}
         {similar.length > 0 && (

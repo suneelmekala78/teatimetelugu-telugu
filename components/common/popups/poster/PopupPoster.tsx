@@ -43,7 +43,6 @@ export default function PopupPoster({ closePopup }: Props) {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          closePopup();
           return 0;
         }
         return prev - 1;
@@ -52,6 +51,13 @@ export default function PopupPoster({ closePopup }: Props) {
 
     return () => clearInterval(timer);
   }, [img, closePopup]);
+
+  useEffect(() => {
+    if (!img) return;
+    if (countdown === 0) {
+      closePopup();
+    }
+  }, [countdown, img, closePopup]);
 
   if (!img) return null;
 

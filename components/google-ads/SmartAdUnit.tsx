@@ -30,6 +30,20 @@ export default function SmartAdUnit({
   const insRef = useRef<HTMLModElement | null>(null);
 
   const [shouldRender, setShouldRender] = useState(!lazy);
+  const hasCustomHeight = style?.height !== undefined;
+
+  const mergedStyle: React.CSSProperties = {
+    display: "block",
+    ...style,
+  };
+
+  if (hasCustomHeight) {
+    mergedStyle.minHeight = style?.height;
+  }
+
+  const containerStyle: React.CSSProperties | undefined = hasCustomHeight
+    ? { minHeight: style?.height }
+    : undefined;
 
   /* ---------------- Lazy Load ---------------- */
   useEffect(() => {
@@ -68,16 +82,16 @@ export default function SmartAdUnit({
   }, [pathname, shouldRender]);
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} style={containerStyle}>
       {shouldRender && (
         <ins
           ref={insRef}
           className="adsbygoogle"
-          style={{ display: "block", ...style }}
+          style={mergedStyle}
           data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_CLIENT}
           data-ad-slot={slot}
-          data-ad-format={format}
-          data-full-width-responsive="true"
+          data-ad-format={hasCustomHeight ? undefined : format}
+          data-full-width-responsive={hasCustomHeight ? undefined : "true"}
         />
       )}
     </div>
