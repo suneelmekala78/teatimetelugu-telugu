@@ -14,19 +14,27 @@ interface NewsItem {
   category: { te: string; en: string };
 }
 
+interface Props {
+  news?: NewsItem[];
+}
+
 /* ================= SERVER COMPONENT ================= */
 
-export default async function MostViewed() {
+export default async function MostViewed({ news: prefetched }: Props = {}) {
   let news: NewsItem[] = [];
 
-  try {
-    const res = await getMostviewedNews();
+  if (prefetched?.length) {
+    news = prefetched.slice(0, 6);
+  } else {
+    try {
+      const res = await getMostviewedNews();
 
-    if (res?.status === "success") {
-      news = res.news?.slice(0, 6);
+      if (res?.status === "success") {
+        news = res.news?.slice(0, 6);
+      }
+    } catch {
+      news = [];
     }
-  } catch {
-    news = [];
   }
 
   if (!news.length) return null;

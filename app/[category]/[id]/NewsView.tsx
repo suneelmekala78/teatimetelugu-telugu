@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Fragment } from "react";
+import { Fragment, Suspense } from "react";
 import styles from "./NewsView.module.css";
 import Reactions from "@/components/news/reactions/Reactions";
 import { FaCalendarAlt } from "react-icons/fa";
@@ -129,7 +129,9 @@ export default function NewsView({ news, suggested }: Props) {
         ))}
 
         <Reactions newsId={news._id} isGallery={false} />
-        <CommentsServer newsId={news._id} />
+        <Suspense fallback={<div style={{ padding: 20 }}>కామెంట్లు లోడ్ అవుతున్నాయి...</div>}>
+          <CommentsServer newsId={news._id} />
+        </Suspense>
         {/* DH AD */}
         <AdBlock>
           <SmartAdUnit slot="3315432893" />
@@ -149,7 +151,9 @@ export default function NewsView({ news, suggested }: Props) {
           <SmartAdUnit slot="9180743912" />
         </AdBlock>
         <Social />
-        <LatestStories />
+        <Suspense fallback={<div style={{ padding: 20 }}>తాజా కథనాలు లోడ్ అవుతున్నాయి...</div>}>
+          <LatestStories />
+        </Suspense>
         {/* MV AD */}
         <AdBlock>
           <SmartAdUnit slot="6909803795" />

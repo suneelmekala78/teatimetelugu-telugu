@@ -79,11 +79,11 @@ export default async function Home() {
       </AdBlock>
 
       <Suspense fallback={<MostViewedSkeleton />}>
-        <MostViewed />
+        <MostViewed news={homeData?.trendingNews} />
       </Suspense>
 
       <Suspense fallback={<ReviewsSkeleton />}>
-        <ReviewsGrid />
+        <ReviewsGrid reviews={homeData?.reviewsNews} />
       </Suspense>
 
       {/* DH AD */}

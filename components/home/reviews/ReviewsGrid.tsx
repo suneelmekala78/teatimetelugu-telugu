@@ -16,23 +16,31 @@ interface ReviewItem {
   category: { en: string };
 }
 
+interface Props {
+  reviews?: ReviewItem[];
+}
+
 /* ================= SERVER COMPONENT ================= */
 
-export default async function ReviewsGrid() {
+export default async function ReviewsGrid({ reviews: prefetched }: Props = {}) {
   let reviews: ReviewItem[] = [];
 
-  try {
-    const res = await getCategoryNewsPosts({
-      category: "reviews",
-      page: 1,
-      limit: 4,
-    });
+  if (prefetched?.length) {
+    reviews = prefetched.slice(0, 4);
+  } else {
+    try {
+      const res = await getCategoryNewsPosts({
+        category: "reviews",
+        page: 1,
+        limit: 4,
+      });
 
-    if (res?.status === "success") {
-      reviews = res.news;
+      if (res?.status === "success") {
+        reviews = res.news;
+      }
+    } catch {
+      reviews = [];
     }
-  } catch {
-    reviews = [];
   }
 
   if (!reviews.length) return null;

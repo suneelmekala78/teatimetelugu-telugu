@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL!;
+const FETCH_TIMEOUT = 8000; // 8s — must finish before Netlify's 10s function timeout
 
 export async function serverFetch(
   path: string,
@@ -21,12 +22,22 @@ export async function serverFetch(
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const res = await fetch(`${BASE}${path}${query}`, {
-    headers: { Cookie: cookieHeader },
-    next: { revalidate },
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 
-  if (!res.ok) return null as any;
+  try {
+    const res = await fetch(`${BASE}${path}${query}`, {
+      headers: { Cookie: cookieHeader },
+      next: { revalidate },
+      signal: controller.signal,
+    });
 
-  return res.json();
+    if (!res.ok) return null as any;
+
+    return res.json();
+  } catch {
+    return null as any;
+  } finally {
+    clearTimeout(timer);
+  }
 }
