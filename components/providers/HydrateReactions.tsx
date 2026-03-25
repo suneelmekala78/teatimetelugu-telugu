@@ -1,20 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useUserStore, Reaction } from "@/store/useUserStore";
-
+/**
+ * HydrateReactions is no longer needed — reactions are fetched
+ * per-content via the /reactions/:targetModel/:targetId/summary API.
+ * Kept as a passthrough wrapper for backward compatibility.
+ */
 export default function HydrateReactions({
-  reactions,
   children,
 }: {
-  reactions: Reaction[];
+  reactions?: unknown[];
   children: React.ReactNode;
 }) {
-  const setReactions = useUserStore((s) => s.setReactions);
-
-  useEffect(() => {
-    setReactions(reactions); 
-  }, [reactions, setReactions]);
-
   return children;
 }

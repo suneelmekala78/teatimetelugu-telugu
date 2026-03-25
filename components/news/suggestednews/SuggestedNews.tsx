@@ -2,20 +2,9 @@ import styles from "./SuggestedNews.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import SectionTitle from "@/components/common/titles/SectionTitle";
+import type { News } from "@/types";
 
-interface SuggestedItem {
-  _id: string;
-  newsId: string;
-  mainUrl?: string;
-  title: { te: string };
-  category: { te: string; en: string };
-}
-
-export default function SuggestedNews({
-  items = [],
-}: {
-  items?: SuggestedItem[];
-}) {
+export default function SuggestedNews({ items = [] }: { items?: News[] }) {
   if (!items.length) return null;
 
   return (
@@ -24,23 +13,16 @@ export default function SuggestedNews({
 
       <div className={styles.list}>
         {items.slice(0, 10).map((post) => (
-          <Link
-            key={post._id}
-            href={`/${post.category.en}/${post.newsId}`}
-            className={styles.card}
-          >
-            {/* thumbnail */}
+          <Link key={post._id} href={`/${post.category}/${post.slug}`} className={styles.card}>
             <div className={styles.thumb}>
               <Image
-                src={post.mainUrl || "/placeholder.jpg"}
+                src={post.thumbnail || "/images/placeholder.png"}
                 alt={post.title.te}
                 fill
                 sizes="120px"
                 className={styles.img}
               />
             </div>
-
-            {/* content */}
             <div className={styles.content}>
               <h3 className={styles.title}>{post.title.te}</h3>
             </div>

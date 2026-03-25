@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { FaAngleRight } from "react-icons/fa";
 import styles from "./SectionTitle.module.css";

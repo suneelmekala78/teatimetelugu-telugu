@@ -3,10 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { IoClose } from "react-icons/io5";
-import { toast } from "sonner";
-
-import styles from "./PopupPoster.module.css";
 import { api } from "@/lib/api";
+import styles from "./PopupPoster.module.css";
 
 interface Props {
   closePopup: () => void;
@@ -17,28 +15,22 @@ export default function PopupPoster({ closePopup }: Props) {
   const [link, setLink] = useState("");
   const [countdown, setCountdown] = useState(10);
 
-  /* -------- Fetch Poster -------- */
   useEffect(() => {
-    const fetchPoster = async () => {
-      try {
-        const res: any = await api({ url: "/home/get-popup-poster" });
-
-        if (res?.status === "success") {
-          setImg(res.popupPoster?.img || "");
-          setLink(res.popupPoster?.link || "");
-        } 
-      } catch {
-        toast.error("Failed to load popup");
-      }
-    };
-
-    fetchPoster();
+    api.get("/home")
+      .then((res) => {
+        if (res.data?.success) {
+          const poster = res.data.config?.posters?.popup;
+          if (poster?.image) {
+            setImg(poster.image);
+            setLink(poster.url || "");
+          }
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  /* -------- Countdown -------- */
   useEffect(() => {
     if (!img) return;
-
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -48,15 +40,11 @@ export default function PopupPoster({ closePopup }: Props) {
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(timer);
-  }, [img, closePopup]);
+  }, [img]);
 
   useEffect(() => {
-    if (!img) return;
-    if (countdown === 0) {
-      closePopup();
-    }
+    if (img && countdown === 0) closePopup();
   }, [countdown, img, closePopup]);
 
   if (!img) return null;
@@ -65,26 +53,16 @@ export default function PopupPoster({ closePopup }: Props) {
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <div className={styles.frame}>
-          {/* Close */}
-          <button className={styles.close} onClick={closePopup}>
+          <button className={styles.close} onClick={closePopup} aria-label="Close">
             <IoClose />
           </button>
 
-          {/* Skip */}
           <div className={styles.skip}>
             యాడ్ {countdown} సెకండ్స్ లో స్కిప్ అవుతుంది
           </div>
 
-          {/* Image */}
           <a href={link} target="_blank" rel="noopener noreferrer">
-            <Image
-              src={img}
-              alt="popup poster"
-              width={1200}
-              height={800}
-              className={styles.image}
-              priority
-            />
+            <Image src={img} alt="popup poster" width={1200} height={800} className={styles.image} priority />
           </a>
         </div>
       </div>

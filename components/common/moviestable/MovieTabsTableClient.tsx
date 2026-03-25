@@ -9,62 +9,63 @@ interface Tab {
   value: string;
 }
 
+interface BilingualField {
+  en: string;
+  te: string;
+}
+
+interface Row {
+  movie?: BilingualField;
+  category?: BilingualField;
+  [key: string]: BilingualField | string | undefined;
+}
+
 interface Props {
   title: string;
   tabs: Tab[];
-  rows: any[];
-  nameKey: string;   // movie name key
-  valueKey: string;  // amount/date key
+  rows: Row[];
+  nameKey: string;
+  valueKey: string;
   nav?: string;
 }
 
-export default function MovieTabsTableClient({
-  title,
-  tabs,
-  rows,
-  nameKey,
-  valueKey,
-  nav,
-}: Props) {
-  const [active, setActive] = useState(tabs[0].value);
+export default function MovieTabsTableClient({ title, tabs, rows, nameKey, valueKey, nav }: Props) {
+  const [active, setActive] = useState(tabs[0]?.value || "");
 
-  const filtered = rows.filter(
-    (r) => r?.category?.en === active
-  );
+  const filtered = rows.filter((r) => r?.category?.en === active);
 
   return (
     <section className={styles.container}>
       <SectionTitle title={title} nav={nav} />
 
-      {/* ===== TABS ===== */}
       <div className={styles.tabs}>
         {tabs.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setActive(tab.value)}
-            className={`${styles.tab} ${
-              active === tab.value ? styles.active : ""
-            }`}
+            className={`${styles.tab} ${active === tab.value ? styles.active : ""}`}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* ===== LIST ===== */}
       <div className={styles.list}>
-        {/* header */}
         <div className={`${styles.row} ${styles.header}`}>
           <span>పేరు</span>
           <span>వివరాలు</span>
         </div>
 
-        {filtered.map((item, i) => (
-          <div key={i} className={styles.row}>
-            <span>{item?.movie?.te || item?.[nameKey]?.te}</span>
-            <span>{item?.[valueKey]?.te}</span>
-          </div>
-        ))}
+        {filtered.map((item, i) => {
+          const name = item?.movie?.te || (item?.[nameKey] as BilingualField | undefined)?.te;
+          const value = (item?.[valueKey] as BilingualField | undefined)?.te;
+          return (
+            <div key={i} className={styles.row}>
+              <span>{name}</span>
+              <span>{value}</span>
+            </div>
+          );
+        })}
       </div>
     </section>
   );

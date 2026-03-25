@@ -1,14 +1,19 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL!;
-const FETCH_TIMEOUT = 8000; // 8s — must finish before Netlify's 10s function timeout
+const FETCH_TIMEOUT = 8000;
 
-export async function publicFetch(
+export async function publicFetch<T = Record<string, unknown>>(
   path: string,
-  options?: { params?: Record<string, any>; revalidate?: number }
-): Promise<any> {
+  options?: { params?: Record<string, string | number>; revalidate?: number },
+): Promise<T | null> {
   const { params, revalidate = 60 } = options || {};
 
   const query = params
-    ? `?${new URLSearchParams(params as any).toString()}`
+    ? `?${new URLSearchParams(
+        Object.entries(params).reduce<Record<string, string>>(
+          (acc, [k, v]) => { acc[k] = String(v); return acc; },
+          {},
+        ),
+      ).toString()}`
     : "";
 
   const controller = new AbortController();
@@ -20,11 +25,11 @@ export async function publicFetch(
       signal: controller.signal,
     });
 
-    if (!res.ok) return null as any;
+    if (!res.ok) return null;
 
-    return res.json();
+    return res.json() as Promise<T>;
   } catch {
-    return null as any;
+    return null;
   } finally {
     clearTimeout(timer);
   }

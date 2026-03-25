@@ -1,7 +1,7 @@
-import { getSingleNews } from "@/lib/requests-server";
+import { getNewsBySlug } from "@/lib/requests-server";
 import NewsView from "./NewsView";
-import HydrateReactions from "@/components/providers/HydrateReactions";
 import { notFound } from "next/navigation";
+import type { News } from "@/types";
 
 type Props = {
   params: Promise<{
@@ -10,19 +10,18 @@ type Props = {
   }>;
 };
 
-/* ========= SEO ========= */
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;
 
   try {
-    const res = await getSingleNews(id);
+    const res = await getNewsBySlug(id);
 
-    if (res?.status === "success") {
+    if (res?.success && res.news) {
       return {
-        title: res.news?.title?.te,
-        description: res.news?.description?.te?.text,
+        title: res.news.title?.te,
+        description: res.news.description?.te?.text,
         openGraph: {
-          images: [res.news?.mainUrl],
+          images: [res.news.thumbnail],
         },
       };
     }
@@ -31,27 +30,30 @@ export async function generateMetadata({ params }: Props) {
   return { title: "టీ టైం తెలుగు" };
 }
 
-/* ========= PAGE ========= */
 export default async function Page({ params }: Props) {
   const { id } = await params;
 
-  let news = null;
-  let suggested = [];
+  let news: News | null = null;
+  let related: News[] = [];
 
   try {
-    const res = await getSingleNews(id);
+    const res = await getNewsBySlug(id);
 
-    if (res?.status === "success") {
+    if (res?.success) {
       news = res.news;
-      suggested = res.suggestedNews || [];
     }
   } catch {}
 
   if (!news) notFound();
 
-  return (
-    <HydrateReactions reactions={news.reactions || []}>
-      <NewsView news={news} suggested={suggested} />
-    </HydrateReactions>
-  );
+  // Fetch related news
+  try {
+    const { getRelatedNews } = await import("@/lib/requests-server");
+    const relRes = await getRelatedNews(news._id);
+    if (relRes?.success) {
+      related = relRes.news || [];
+    }
+  } catch {}
+
+  return <NewsView news={news} suggested={related} />;
 }

@@ -1,11 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./VideoGrid.module.css";
-import { getFilteredVideos } from "@/lib/requests-server";
+import { getVideosBySubCategory } from "@/lib/requests-server";
 import SectionTitle from "@/components/common/titles/SectionTitle";
+import type { Video } from "@/types";
 
 interface Props {
-  category: string; // trailers | lyrical_songs | events etc
+  category: string;
   limit?: number;
   title?: string;
   nav?: string;
@@ -17,21 +18,14 @@ export default async function VideoGrid({
   title,
   nav,
 }: Props) {
-  let videos: any[] = [];
+  let videos: Video[] = [];
 
   try {
-    const res = await getFilteredVideos({
-      category,
-      page: 1,
-      limit,
-    });
-
-    if (res?.status === "success") {
+    const res = await getVideosBySubCategory(category, { page: 1, limit });
+    if (res?.success) {
       videos = res.videos || [];
     }
-  } catch {
-    videos = [];
-  }
+  } catch {}
 
   if (!videos.length) return null;
 
@@ -42,20 +36,18 @@ export default async function VideoGrid({
         {videos.map((video) => (
           <Link
             key={video._id}
-            href={`/videos/v/${video.newsId}`}
+            href={`/videos/v/${video.slug}`}
             className={styles.card}
             aria-label={video.title?.te}
           >
             <div className={styles.thumb}>
               <Image
-                src={video.mainUrl}
+                src={video.thumbnail}
                 alt={video.title?.te}
                 fill
                 sizes="(max-width:768px) 50vw, 25vw"
                 className={styles.image}
               />
-
-              {/* play overlay */}
               <div className={styles.play}>▶</div>
             </div>
           </Link>

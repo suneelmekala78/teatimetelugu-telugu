@@ -1,107 +1,50 @@
 import Link from "next/link";
 import Image from "next/image";
 import SectionTitle from "@/components/common/titles/SectionTitle";
-import { getTrendingNews } from "@/lib/requests-server";
+import type { PositionedNews } from "@/types";
+import { getCategoryLabel, formatDate } from "@/lib/constants";
 import styles from "./TrendingGrid.module.css";
 
-/* ================= TYPES ================= */
-
-interface NewsItem {
-  _id: string;
-  newsId: string;
-  mainUrl: string;
-  createdAt: string;
-  title: { te: string };
-  category: { te: string; en: string };
-}
-
-/* ================= HELPERS ================= */
-
-const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString("te-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-
-/* ================= SERVER COMPONENT ================= */
-
 interface Props {
-  news?: NewsItem[];
+  news?: PositionedNews[];
 }
 
-export default async function TrendingGrid({ news: propNews }: Props) {
-  let news: NewsItem[] = propNews || [];
+export default function TrendingGrid({ news }: Props) {
+  if (!news?.length) return null;
 
-  if (!propNews) {
-    try {
-      const res = await getTrendingNews();
-      if (res?.status === "success") {
-        news = res.news;
-      }
-    } catch {
-      news = [];
-    }
-  }
+  const items = news.map((n) => n.news).filter(Boolean);
+  if (!items.length) return null;
 
-  if (!news.length) return null;
-
-  const main = news[0];
-  const others = news.slice(1, 5);
+  const main = items[0];
+  const others = items.slice(1, 5);
 
   return (
     <section className={styles.section}>
       <SectionTitle title="ట్రెండింగ్ వార్తలు" />
 
       <div className={styles.grid}>
-        {/* ===== LEFT BIG CARD ===== */}
-        <Link
-          href={`/${main.category.en}/${main.newsId}`}
-          className={styles.mainCard}
-        >
+        <Link href={`/${main.category}/${main.slug}`} className={styles.mainCard}>
           <div className={styles.mainImage}>
-            <Image
-              src={main.mainUrl}
-              alt={main.title.te}
-              fill
-              priority
-              sizes="600px"
-              className={styles.image}
-            />
+            <Image src={main.thumbnail} alt={main.title.te} fill priority sizes="600px" className={styles.image} />
           </div>
-
           <div className={styles.texts}>
             <span className={styles.category}>
-              {main.category.te} • {formatDate(main.createdAt)}
+              {getCategoryLabel(main.category)} • {formatDate(main.publishedAt || "")}
             </span>
-
             <h2 className={styles.mainTitle}>{main.title.te}</h2>
           </div>
         </Link>
 
-        {/* ===== RIGHT LIST ===== */}
         <div className={styles.list}>
           {others.map((item) => (
-            <Link
-              key={item._id}
-              href={`/${item.category.en}/${item.newsId}`}
-              className={styles.listItem}
-            >
+            <Link key={item._id} href={`/${item.category}/${item.slug}`} className={styles.listItem}>
               <div className={styles.thumb}>
-                <Image
-                  src={item.mainUrl}
-                  alt={item.title.te}
-                  fill
-                  sizes="120px"
-                  className={styles.image}
-                />
+                <Image src={item.thumbnail} alt={item.title.te} fill sizes="120px" className={styles.image} />
               </div>
-
               <div className={styles.texts}>
                 <span className={styles.category}>
-                  {item.category.te} • {formatDate(item.createdAt)}
+                  {getCategoryLabel(item.category)} • {formatDate(item.publishedAt || "")}
                 </span>
-
                 <h3 className={styles.title}>{item.title.te}</h3>
               </div>
             </Link>

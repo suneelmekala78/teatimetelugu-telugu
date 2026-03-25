@@ -1,37 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import SectionTitle from "@/components/common/titles/SectionTitle";
-import { getFilteredGallery } from "@/lib/requests-server";
+import { getPublishedGallery } from "@/lib/requests-server";
+import type { Gallery } from "@/types";
 import styles from "./GalleryGrid.module.css";
 
-/* ================= TYPES ================= */
-
-interface GalleryItem {
-  _id: string;
-  newsId: string;
-  name: { te: string; en: string };
-  category: { te: string };
-  galleryPics: string[];
-}
-
-/* ================= SERVER COMPONENT ================= */
-
 export default async function GalleryGrid() {
-  let gallery: GalleryItem[] = [];
-
-  try {
-    // fetch max 6 always (CSS controls layout)
-    const res = await getFilteredGallery({
-      page: 1,
-      limit: 6,
-    });
-
-    if (res?.status === "success") {
-      gallery = res.gallery;
-    }
-  } catch {
-    gallery = [];
-  }
+  const res = await getPublishedGallery({ page: 1, limit: 6 });
+  const gallery: Gallery[] = res?.success ? res.galleries : [];
 
   if (!gallery.length) return null;
 
@@ -41,32 +17,18 @@ export default async function GalleryGrid() {
 
       <div className={styles.grid}>
         {gallery.map((item) => (
-          <Link
-            key={item._id}
-            href={`/gallery/${item.newsId}`}
-            className={styles.card}
-          >
+          <Link key={item._id} href={`/gallery/${item.slug}`} className={styles.card}>
             <div className={styles.imageWrap}>
               <Image
-                src={
-                  item.galleryPics?.[0] ||
-                  "/placeholder.webp"
-                }
+                src={item.images?.[0] || item.thumbnail || "/images/placeholder.png"}
                 alt={item.name.te}
                 fill
                 sizes="300px"
                 className={styles.image}
               />
             </div>
-
             <div className={styles.overlay}>
-              <span className={styles.category}>
-                {item.category.te}
-              </span>
-
-              <h3 className={styles.title}>
-                {item.name.te}
-              </h3>
+              <h3 className={styles.title}>{item.name.te}</h3>
             </div>
           </Link>
         ))}

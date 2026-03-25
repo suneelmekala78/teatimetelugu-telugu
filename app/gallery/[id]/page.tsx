@@ -1,24 +1,24 @@
-import { getSingleGallery } from "@/lib/requests-server";
+import { getGalleryBySlug } from "@/lib/requests-server";
 import GalleryView from "./GalleryView";
 import { notFound } from "next/navigation";
+import type { Gallery } from "@/types";
 
 type Props = {
   params: Promise<{ id: string }>;
 };
 
-/* ========= SEO ========= */
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;
 
   try {
-    const res = await getSingleGallery(id);
+    const res = await getGalleryBySlug(id);
 
-    if (res?.status === "success") {
+    if (res?.success && res.gallery) {
       return {
-        title: res.gallery?.title?.te,
-        description: res.gallery?.description?.te?.text,
+        title: res.gallery.title?.te,
+        description: res.gallery.description?.te?.text,
         openGraph: {
-          images: [res.gallery?.galleryPics?.[0]],
+          images: [res.gallery.images?.[0] || res.gallery.thumbnail],
         },
       };
     }
@@ -27,23 +27,28 @@ export async function generateMetadata({ params }: Props) {
   return { title: "టీ టైం తెలుగు" };
 }
 
-/* ========= PAGE ========= */
 export default async function Page({ params }: Props) {
   const { id } = await params;
 
-  let gallery = null;
-  let suggested = [];
+  let gallery: Gallery | null = null;
+  let relatedGalleries: Gallery[] = [];
 
   try {
-    const res = await getSingleGallery(id);
-
-    if (res?.status === "success") {
+    const res = await getGalleryBySlug(id);
+    if (res?.success) {
       gallery = res.gallery;
-      suggested = res.suggestedGallery || [];
     }
   } catch {}
 
   if (!gallery) notFound();
 
-  return <GalleryView gallery={gallery} suggested={suggested} />;
+  try {
+    const { getRelatedGallery } = await import("@/lib/requests-server");
+    const relRes = await getRelatedGallery(gallery._id);
+    if (relRes?.success) {
+      relatedGalleries = relRes.galleries || [];
+    }
+  } catch {}
+
+  return <GalleryView gallery={gallery} suggested={relatedGalleries} />;
 }

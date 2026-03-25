@@ -1,7 +1,6 @@
-import { getFilteredVideos } from "@/lib/requests-server";
+import { getVideosBySubCategory } from "@/lib/requests-server";
 import VideoGalleryClient from "./VideoGalleryClient";
-
-/* ================= TYPES ================= */
+import type { Video } from "@/types";
 
 interface Props {
   title: string;
@@ -10,37 +9,11 @@ interface Props {
   limit?: number;
 }
 
-export default async function VideoGallery({
-  title,
-  nav,
-  subcategory,
-  limit = 10,
-}: Props) {
-  let videos: any[] = [];
-
-  try {
-    const res = await getFilteredVideos({
-      category: subcategory || "", // 🔥 dynamic
-      searchText: "",
-      page: 1,
-      limit,
-      subcategory, // 🔥 dynamic
-    });
-
-    if (res?.status === "success") {
-      videos = res.videos;
-    }
-  } catch {
-    videos = [];
-  }
+export default async function VideoGallery({ title, nav, subcategory, limit = 10 }: Props) {
+  const res = await getVideosBySubCategory(subcategory, { limit });
+  const videos: Video[] = res?.success ? res.videos : [];
 
   if (!videos.length) return null;
 
-  return (
-    <VideoGalleryClient
-      title={title}
-      nav={nav}
-      videos={videos}
-    />
-  );
+  return <VideoGalleryClient title={title} nav={nav} videos={videos} />;
 }

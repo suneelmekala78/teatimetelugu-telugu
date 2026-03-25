@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./CategoryPosts.module.css";
-import { getCategoryNewsPosts } from "@/lib/requests-server";
+import { getCategoryNews } from "@/lib/requests-server";
+import { getCategoryLabel, getSubCategoryLabel, formatDate } from "@/lib/constants";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import SmartAdUnit from "@/components/google-ads/SmartAdUnit";
 import AdBlock from "@/components/google-ads/AdBlock";
+import type { News } from "@/types";
 
 const POSTS_PER_PAGE = 16;
 
@@ -14,32 +16,19 @@ interface Props {
   page: number;
 }
 
-const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString("te-IN", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-
-export default async function CategoryPosts({
-  category,
-  subcategory,
-  page,
-}: Props) {
-  let posts: any[] = [];
+export default async function CategoryPosts({ category, subcategory, page }: Props) {
+  let posts: News[] = [];
   let totalPages = 1;
 
   try {
-    const res = await getCategoryNewsPosts({
-      category: category || "",
-      subcategory: subcategory || "",
-      page: page || 1,
-      limit: POSTS_PER_PAGE || 16,
-    });
+    const params: Record<string, string | number> = { page: page || 1, limit: POSTS_PER_PAGE };
+    if (subcategory) params.subCategory = subcategory;
 
-    if (res?.status === "success") {
+    const res = await getCategoryNews(category, params);
+
+    if (res?.success) {
       posts = res.news || [];
-      totalPages = Math.ceil((res.total || 0) / POSTS_PER_PAGE);
+      totalPages = res.pagination?.pages || 1;
     }
   } catch {
     return <p style={{ padding: 20 }}>Something went wrong.</p>;
@@ -54,32 +43,20 @@ export default async function CategoryPosts({
 
   return (
     <div className={styles.container}>
-      {/* ===== POSTS GRID ===== */}
       <div className={styles.grid}>
         {posts.length ? (
           posts.map((post) => (
-            <Link
-              href={`/${post?.category?.en}/${post?.newsId}`}
-              key={post._id}
-              className={`${styles.card} ${styles.shadow}`}
-            >
+            <Link href={`/${post.category}/${post.slug}`} key={post._id} className={`${styles.card} ${styles.shadow}`}>
               <div className={styles.imageWrap}>
-                <Image
-                  src={post?.mainUrl}
-                  alt={post?.title?.te}
-                  fill
-                  sizes="300px"
-                  className={styles.image}
-                />
+                <Image src={post.thumbnail} alt={post.title?.te} fill sizes="300px" className={styles.image} />
               </div>
-
               <div className={styles.texts}>
                 <span className={styles.meta}>
-                  {post?.subCategory?.te || post?.category?.te} •{" "}
-                  {formatDate(post?.createdAt)}
+                  {post.subCategory
+                    ? getSubCategoryLabel(post.category, post.subCategory)
+                    : getCategoryLabel(post.category)} • {formatDate(post.createdAt)}
                 </span>
-
-                <h3 className={styles.title}>{post?.title?.te}</h3>
+                <h3 className={styles.title}>{post.title?.te}</h3>
               </div>
             </Link>
           ))
@@ -87,29 +64,14 @@ export default async function CategoryPosts({
           <p>ఫలితాలు ఏవీ దొరకలేదు!</p>
         )}
       </div>
-      {/* MH AD */}
-      <AdBlock>
-        <SmartAdUnit slot="9182003090" />
-      </AdBlock>
 
-      {/* ===== PAGINATION ===== */}
+      <AdBlock><SmartAdUnit slot="9182003090" /></AdBlock>
+
       {totalPages > 1 && (
         <div className={styles.pagination}>
-          {page > 1 && (
-            <Link href={buildLink(page - 1)}>
-              <FaAngleLeft />
-            </Link>
-          )}
-
-          <span>
-            పేజీ {page} / {totalPages}
-          </span>
-
-          {page < totalPages && (
-            <Link href={buildLink(page + 1)}>
-              <FaAngleRight />
-            </Link>
-          )}
+          {page > 1 && <Link href={buildLink(page - 1)}><FaAngleLeft /></Link>}
+          <span>పేజీ {page} / {totalPages}</span>
+          {page < totalPages && <Link href={buildLink(page + 1)}><FaAngleRight /></Link>}
         </div>
       )}
     </div>

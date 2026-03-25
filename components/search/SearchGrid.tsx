@@ -2,21 +2,17 @@ import SearchCard from "./SearchCard";
 import styles from "./SearchGrid.module.css";
 
 type Props = {
-  items: any[];
+  items: unknown[];
 };
 
 export default function SearchGrid({ items }: Props) {
-  const getItemKey = (item: any) => {
-    const base = item?.newsId || item?._id || "unknown";
-    const type = item?.type || "news";
-    return `${type}:${base}`;
-  };
-
   return (
     <div className={styles.grid}>
-      {items.map((item) => (
-        <SearchCard key={getItemKey(item)} item={item} />
-      ))}
+      {(items as Record<string, unknown>[]).map((item, i) => {
+        const id = (item?.slug || item?._id || i) as string;
+        const type = (item?.type || "news") as string;
+        return <SearchCard key={`${type}:${id}`} item={item as any} />;
+      })}
     </div>
   );
 }

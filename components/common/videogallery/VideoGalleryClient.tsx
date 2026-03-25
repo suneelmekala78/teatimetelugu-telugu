@@ -3,19 +3,16 @@
 import { useState } from "react";
 import Image from "next/image";
 import SectionTitle from "@/components/common/titles/SectionTitle";
+import type { Video } from "@/types";
 import styles from "./VideoGallery.module.css";
 
 interface Props {
   title: string;
   nav: string;
-  videos: any[];
+  videos: Video[];
 }
 
-export default function VideoGalleryClient({
-  title,
-  nav,
-  videos,
-}: Props) {
+export default function VideoGalleryClient({ title, nav, videos }: Props) {
   const [current, setCurrent] = useState(videos[0]);
 
   return (
@@ -23,38 +20,28 @@ export default function VideoGalleryClient({
       <SectionTitle title={title} nav={nav} />
 
       <div className={styles.gallery}>
-        {/* ===== PLAYER ===== */}
         <div className={styles.player}>
           <iframe
             src={current.videoUrl}
             title={current.title?.te}
             allowFullScreen
             loading="lazy"
+            referrerPolicy="no-referrer"
+            sandbox="allow-scripts allow-same-origin allow-presentation"
           />
         </div>
 
-        {/* ===== LIST ===== */}
         <div className={styles.list}>
           {videos.map((item) => (
             <button
               key={item._id}
               onClick={() => setCurrent(item)}
-              className={`${styles.item} ${
-                current._id === item._id ? styles.active : ""
-              }`}
+              className={`${styles.item} ${current._id === item._id ? styles.active : ""}`}
             >
               <div className={styles.thumb}>
-                <Image
-                  src={item.mainUrl}
-                  alt={item.title?.te}
-                  fill
-                  sizes="120px"
-                />
+                <Image src={item.thumbnail} alt={item.title?.te} fill sizes="120px" />
               </div>
-
-              <span className={styles.itemTitle}>
-                {item.title?.te}
-              </span>
+              <span className={styles.itemTitle}>{item.title?.te}</span>
             </button>
           ))}
         </div>

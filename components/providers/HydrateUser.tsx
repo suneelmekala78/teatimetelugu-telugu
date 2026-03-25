@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useUserStore } from "@/store/useUserStore";
-import { User } from "@/types/user";
+import type { User } from "@/types";
 
 export default function HydrateUser({
   user,

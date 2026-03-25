@@ -2,41 +2,109 @@
 
 import styles from "./AuthPopup.module.css";
 import Image from "next/image";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback, useRef } from "react";
 import { IoClose } from "react-icons/io5";
-import { usePathname, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { api } from "@/lib/api";
+import { useUserStore } from "@/store/useUserStore";
 
 interface Props {
   open: boolean;
   onClose: () => void;
 }
 
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: Record<string, unknown>) => void;
+          renderButton: (element: HTMLElement, config: Record<string, unknown>) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
+}
+
 export default function AuthPopup({ open, onClose }: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { login } = useUserStore();
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const scriptLoaded = useRef(false);
 
-  /* ---------- Build current full path ---------- */
-  const fullPath = useMemo(() => {
-    const query = searchParams.toString();
-    return query ? `${pathname}?${query}` : pathname;
-  }, [pathname, searchParams]);
+  const handleCredentialResponse = useCallback(
+    async (response: { credential: string }) => {
+      try {
+        const res = await api.post("/auth/google", {
+          idToken: response.credential,
+        });
 
-  /* ---------- Google login redirect URL ---------- */
-  const googleUrl = useMemo(() => {
-    const redirectUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}${fullPath}`;
+        if (res.data?.success) {
+          const { accessToken, user } = res.data;
+          login(user, accessToken);
+          toast.success("విజయవంతంగా లాగిన్ అయ్యారు!");
+          onClose();
+          router.refresh();
+        } else {
+          toast.error(res.data?.message || "లాగిన్ విఫలమైంది");
+        }
+      } catch {
+        toast.error("లాగిన్ విఫలమైంది. మళ్ళీ ప్రయత్నించండి.");
+      }
+    },
+    [login, onClose, router]
+  );
 
-    return (
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/join-with-google` +
-      `?client=${encodeURIComponent(redirectUrl)}`
-    );
-  }, [fullPath]);
+  useEffect(() => {
+    if (!open) return;
 
-  /* ---------- Close popup on ESC ---------- */
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set");
+      return;
+    }
+
+    const initializeGoogle = () => {
+      if (!window.google || !buttonRef.current) return;
+
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleCredentialResponse,
+      });
+
+      window.google.accounts.id.renderButton(buttonRef.current, {
+        theme: "outline",
+        size: "large",
+        width: 300,
+        text: "continue_with",
+        locale: "te",
+      });
+    };
+
+    if (window.google) {
+      initializeGoogle();
+      return;
+    }
+
+    if (!scriptLoaded.current) {
+      scriptLoaded.current = true;
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGoogle;
+      document.head.appendChild(script);
+    }
+  }, [open, handleCredentialResponse]);
+
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-
     document.addEventListener("keydown", handleEsc);
     return () => document.removeEventListener("keydown", handleEsc);
   }, [onClose]);
@@ -45,19 +113,14 @@ export default function AuthPopup({ open, onClose }: Props) {
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      {/* Prevent closing when clicking inside */}
       <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
-        {/* Close button */}
         <button className={styles.close} onClick={onClose}>
           <IoClose size={22} />
         </button>
 
         <h2 className={styles.title}>లాగిన్</h2>
 
-        <a href={googleUrl} className={styles.googleBtn}>
-          <Image src="/images/google.png" alt="Google" width={20} height={20} />
-          <span>Google తో కొనసాగించండి</span>
-        </a>
+        <div ref={buttonRef} className={styles.googleBtn} />
       </div>
     </div>
   );

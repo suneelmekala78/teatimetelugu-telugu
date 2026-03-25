@@ -16,7 +16,8 @@ import Discover from "@/components/common/discover/Discover";
 import BreakingNews from "@/components/common/breakingnews/BreakingNews";
 import SmartAdUnit from "@/components/google-ads/SmartAdUnit";
 import AdBlock from "@/components/google-ads/AdBlock";
-import { getHomePageData } from "@/lib/requests-server";
+import { getHomeConfig } from "@/lib/requests-server";
+import type { HomeConfig } from "@/types";
 import {
   BreakingNewsSkeleton,
   FeaturedSkeleton,
@@ -32,40 +33,36 @@ import {
   MovieTableSkeleton,
 } from "@/components/home/skeletons/HomeSectionSkeletons";
 
-// Skip static generation — news homepage must render at request time
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  // Single DB query for all Home-model data (breakingNews, trends, hotTopics, movies)
-  const homeData = await getHomePageData();
+  const res = await getHomeConfig();
+  const config: HomeConfig | null = res?.success ? res.config : null;
 
   return (
     <div className="home-page">
-      <BreakingNews news={homeData?.breakingNews} />
+      <BreakingNews news={config?.breakingNews} />
 
       <Suspense fallback={<FeaturedSkeleton />}>
         <FeaturedGrid />
       </Suspense>
 
-      {/* DH AD */}
       <AdBlock>
         <SmartAdUnit slot="3315432893" />
       </AdBlock>
 
       <div className="duo-content">
         <div className="duo-content-left">
-          <TrendingGrid news={homeData?.trends} />
-          {/* DH AD */}
+          <TrendingGrid news={config?.trendingNews} />
           <AdBlock>
             <SmartAdUnit slot="3315432893" style={{ height: "150px" }} />
           </AdBlock>
         </div>
         <div className="duo-content-right">
-          {/* DS AD */}
           <AdBlock>
             <SmartAdUnit slot="9180743912" />
           </AdBlock>
-          <ScrollGrid news={homeData?.hotTopics} />
+          <ScrollGrid news={config?.hotTopics} />
         </div>
       </div>
 
@@ -73,20 +70,18 @@ export default async function Home() {
         <GalleryGrid />
       </Suspense>
 
-      {/* DH AD */}
       <AdBlock>
         <SmartAdUnit slot="3315432893" />
       </AdBlock>
 
       <Suspense fallback={<MostViewedSkeleton />}>
-        <MostViewed news={homeData?.trendingNews} />
+        <MostViewed />
       </Suspense>
 
       <Suspense fallback={<ReviewsSkeleton />}>
-        <ReviewsGrid reviews={homeData?.reviewsNews} />
+        <ReviewsGrid />
       </Suspense>
 
-      {/* DH AD */}
       <AdBlock>
         <SmartAdUnit slot="3315432893" style={{ height: "150px" }} />
       </AdBlock>
@@ -98,12 +93,11 @@ export default async function Home() {
       <Suspense fallback={<VideoGallerySkeleton />}>
         <VideoGallery
           title="కొత్త ట్రైలర్లు"
-          nav="/videos?subcategory=trailers"
-          subcategory="trailers"
+          nav="/videos?subcategory=trailers-teasers"
+          subcategory="trailers-teasers"
         />
       </Suspense>
 
-      {/* DH AD */}
       <AdBlock>
         <SmartAdUnit slot="3315432893" style={{ height: "150px" }} />
       </AdBlock>
@@ -116,7 +110,6 @@ export default async function Home() {
         <OtherPosts category="technology" />
       </Suspense>
 
-      {/* DH AD */}
       <AdBlock>
         <SmartAdUnit slot="3315432893" style={{ height: "150px" }} />
       </AdBlock>
@@ -132,17 +125,16 @@ export default async function Home() {
       <Suspense fallback={<VideoGallerySkeleton />}>
         <VideoGallery
           title="లిరికల్ సాంగ్స్"
-          nav="/videos?subcategory=lyrical_songs"
-          subcategory="lyrical_songs"
+          nav="/videos?subcategory=lyrical-songs"
+          subcategory="lyrical-songs"
         />
       </Suspense>
 
       <div className="movies-tables-section">
-        <MovieSchedules rows={homeData?.movieReleases} />
-        <MovieCollections rows={homeData?.movieCollections} />
+        <MovieSchedules rows={config?.movieReleases} />
+        <MovieCollections rows={config?.movieCollections} />
       </div>
 
-      {/* MH AD */}
       <AdBlock>
         <SmartAdUnit slot="9182003090" />
       </AdBlock>

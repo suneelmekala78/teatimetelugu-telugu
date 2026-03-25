@@ -1,22 +1,11 @@
 import MovieTabsTableClient from "./MovieTabsTableClient";
-import { getMovieCollections } from "@/lib/requests-server";
+import type { CollectionEntry } from "@/types";
 
 interface Props {
-  rows?: any[];
+  rows?: CollectionEntry[];
 }
 
-export default async function MovieCollections({ rows: propRows }: Props) {
-  let rows: any[] = propRows || [];
-
-  if (!propRows) {
-    try {
-      const res = await getMovieCollections();
-      if (res?.status === "success") {
-        rows = res.movieCollections || [];
-      }
-    } catch {}
-  }
-
+export default function MovieCollections({ rows = [] }: Props) {
   return (
     <MovieTabsTableClient
       title="సినిమా సేకరణలు"
@@ -25,7 +14,7 @@ export default async function MovieCollections({ rows: propRows }: Props) {
         { label: "1వ రోజు WW", value: "1st-day-ww" },
         { label: "టోటల్ WW", value: "closing-ww" },
       ]}
-      rows={rows}
+      rows={rows as any[]}
       nameKey="movie"
       valueKey="amount"
     />

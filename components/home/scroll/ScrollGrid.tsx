@@ -1,40 +1,32 @@
 import SectionTitle from "@/components/common/titles/SectionTitle";
-import { getHotTopics } from "@/lib/requests-server";
 import ScrollCarousel from "./ScrollCarousel";
+import type { PositionedNews } from "@/types";
 import styles from "./ScrollGrid.module.css";
 
-interface NewsItem {
-  _id: string;
-  newsId: string;
-  mainUrl: string;
-  title: { te: string };
-  category: { en: string };
-}
-
 interface Props {
-  news?: NewsItem[];
+  news?: PositionedNews[];
 }
 
-export default async function ScrollGrid({ news: propNews }: Props) {
-  let topics: NewsItem[] = propNews || [];
+export default function ScrollGrid({ news }: Props) {
+  if (!news?.length) return null;
 
-  if (!propNews) {
-    try {
-      const res = await getHotTopics();
-      if (res?.status === "success") {
-        topics = res.news;
-      }
-    } catch {
-      topics = [];
-    }
-  }
+  const items = news
+    .map((n) => n.news)
+    .filter(Boolean)
+    .map((post) => ({
+      _id: post._id,
+      slug: post.slug,
+      thumbnail: post.thumbnail,
+      title: post.title,
+      category: post.category,
+    }));
 
-  if (!topics.length) return null;
+  if (!items.length) return null;
 
   return (
     <section className={styles.container}>
       <SectionTitle title="ఈరోజు హాట్ టాపిక్స్" />
-      <ScrollCarousel items={topics} />
+      <ScrollCarousel items={items} />
     </section>
   );
 }

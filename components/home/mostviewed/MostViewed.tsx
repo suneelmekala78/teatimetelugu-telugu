@@ -1,41 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import SectionTitle from "@/components/common/titles/SectionTitle";
-import { getMostviewedNews } from "@/lib/requests-server";
+import { getMostViewedNews } from "@/lib/requests-server";
+import { getCategoryLabel } from "@/lib/constants";
+import type { News } from "@/types";
 import styles from "./MostViewed.module.css";
 
-/* ================= TYPES ================= */
-
-interface NewsItem {
-  _id: string;
-  newsId: string;
-  mainUrl: string;
-  title: { te: string };
-  category: { te: string; en: string };
-}
-
-interface Props {
-  news?: NewsItem[];
-}
-
-/* ================= SERVER COMPONENT ================= */
-
-export default async function MostViewed({ news: prefetched }: Props = {}) {
-  let news: NewsItem[] = [];
-
-  if (prefetched?.length) {
-    news = prefetched.slice(0, 6);
-  } else {
-    try {
-      const res = await getMostviewedNews();
-
-      if (res?.status === "success") {
-        news = res.news?.slice(0, 6);
-      }
-    } catch {
-      news = [];
-    }
-  }
+export default async function MostViewed() {
+  const res = await getMostViewedNews();
+  const news: News[] = res?.success ? (res.news || []).slice(0, 6) : [];
 
   if (!news.length) return null;
 
@@ -45,29 +18,13 @@ export default async function MostViewed({ news: prefetched }: Props = {}) {
 
       <div className={styles.grid}>
         {news.map((item) => (
-          <Link
-            key={item._id}
-            href={`/${item.category.en}/${item.newsId}`}
-            className={styles.card}
-          >
+          <Link key={item._id} href={`/${item.category}/${item.slug}`} className={styles.card}>
             <div className={styles.imageWrap}>
-              <Image
-                src={item.mainUrl}
-                alt={item.title.te}
-                fill
-                sizes="250px"
-                className={styles.image}
-              />
+              <Image src={item.thumbnail} alt={item.title.te} fill sizes="250px" className={styles.image} />
             </div>
-
             <div className={styles.content}>
-              <span className={styles.category}>
-                {item.category.te}
-              </span>
-
-              <h3 className={styles.title}>
-                {item.title.te}
-              </h3>
+              <span className={styles.category}>{getCategoryLabel(item.category)}</span>
+              <h3 className={styles.title}>{item.title.te}</h3>
             </div>
           </Link>
         ))}

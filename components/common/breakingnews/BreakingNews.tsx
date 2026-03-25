@@ -1,54 +1,32 @@
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./BreakingNews.module.css";
-import { getBreakingNews } from "@/lib/requests-server";
+import type { PositionedNews } from "@/types";
+import { getCategoryLabel } from "@/lib/constants";
 
 interface Props {
-  news?: any[];
+  news?: PositionedNews[];
 }
 
-export default async function BreakingNews({ news: propNews }: Props) {
-  let news: any[] = propNews || [];
-  let error = false;
-
-  if (!propNews) {
-    try {
-      const res = await getBreakingNews();
-      news =
-        res?.status === "success" && Array.isArray(res?.news) ? res.news : [];
-    } catch {
-      error = true;
-    }
-  }
-
-  const loading = !news.length && !error;
+export default function BreakingNews({ news }: Props) {
+  if (!news?.length) return null;
 
   return (
     <section className={styles.section}>
-      {/* ================= ERROR ================= */}
-      {error && (
-        <div className={styles.error}>
-          Failed to load breaking news
-        </div>
-      )}
+      <div className={styles.container}>
+        {news.map((item) => {
+          const post = item.news;
+          if (!post) return null;
 
-      {/* ================= EMPTY ================= */}
-      {!loading && !news.length && !error && (
-        <div className={styles.empty}>No breaking news available</div>
-      )}
-
-      {/* ================= NEWS ================= */}
-      {news.length > 0 && (
-        <div className={styles.container}>
-          {news.map((post) => (
+          return (
             <article key={post._id} className={styles.post}>
               <Link
-                href={`/${post.category?.en}/${post.newsId}`}
+                href={`/${post.category}/${post.slug}`}
                 className={styles.link}
               >
                 <figure className={styles.imageBox}>
                   <Image
-                    src={post.mainUrl}
+                    src={post.thumbnail}
                     alt={post.title?.te}
                     fill
                     sizes="150px"
@@ -67,9 +45,9 @@ export default async function BreakingNews({ news: propNews }: Props) {
                 </div>
               </Link>
             </article>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
     </section>
   );
 }

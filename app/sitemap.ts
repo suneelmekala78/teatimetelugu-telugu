@@ -17,34 +17,20 @@ const REQUEST_TIMEOUT_MS = 8000;
 
 type ChangeFreq = MetadataRoute.Sitemap[number]["changeFrequency"];
 
-type NewsItem = {
-  newsId?: string;
-  category?: { en?: string };
+interface SitemapItem {
+  slug?: string;
+  category?: string;
   createdAt?: string;
   updatedAt?: string;
-};
+}
 
-type GalleryItem = {
-  newsId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-type VideoItem = {
-  newsId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-type PagedResponse<T> = {
-  status?: string;
-  pagination?: {
-    totalPages?: number;
-  };
-  news?: T[];
-  gallery?: T[];
-  videos?: T[];
-};
+interface PagedResponse {
+  success?: boolean;
+  pagination?: { pages?: number };
+  news?: SitemapItem[];
+  galleries?: SitemapItem[];
+  videos?: SitemapItem[];
+}
 
 function toAbsolute(path: string) {
   return `${SITE_BASE}${path}`;
@@ -56,7 +42,7 @@ function toDate(value?: string) {
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
 }
 
-async function fetchJson<T>(path: string, params: Record<string, string | number>) {
+async function fetchJson<T>(path: string, params: Record<string, string | number>): Promise<T | null> {
   if (!API_BASE) return null;
 
   const query = new URLSearchParams(
@@ -69,56 +55,43 @@ async function fetchJson<T>(path: string, params: Record<string, string | number
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  let res: Response | null = null;
-
   try {
-    res = await fetch(`${API_BASE}${path}?${query}`, {
+    const res = await fetch(`${API_BASE}${path}?${query}`, {
       next: { revalidate },
       signal: controller.signal,
     });
-  } catch {
-    return null;
-  } finally {
     clearTimeout(timeoutId);
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    clearTimeout(timeoutId);
+    return null;
   }
-
-  if (!res?.ok) return null;
-
-  return (await res.json()) as T;
 }
 
 async function getNewsUrls(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
   for (let page = 1; page <= MAX_PAGES; page += 1) {
-    const data = await fetchJson<PagedResponse<NewsItem>>("/news/filter", {
-      category: "",
-      time: "",
-      searchText: "",
-      page,
-      limit: PAGE_SIZE,
-    });
+    const data = await fetchJson<PagedResponse>("/news/published", { page, limit: PAGE_SIZE });
 
     const items = data?.news ?? [];
     if (!items.length) break;
 
     for (const item of items) {
-      if (!item.newsId) continue;
-      const category = item.category?.en || "news";
-
+      if (!item.slug) continue;
+      const category = item.category || "general";
       entries.push({
-        url: toAbsolute(`/${category}/${item.newsId}`),
+        url: toAbsolute(`/${category}/${item.slug}`),
         lastModified: toDate(item.updatedAt || item.createdAt),
         changeFrequency: "hourly",
         priority: 1,
       });
-
       if (entries.length >= MAX_ITEMS) break;
     }
 
     if (entries.length >= MAX_ITEMS) break;
-
-    const totalPages = data?.pagination?.totalPages;
+    const totalPages = data?.pagination?.pages;
     if (typeof totalPages === "number" && page >= totalPages) break;
   }
 
@@ -129,33 +102,24 @@ async function getGalleryUrls(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
   for (let page = 1; page <= MAX_PAGES; page += 1) {
-    const data = await fetchJson<PagedResponse<GalleryItem>>("/gallery/filter", {
-      category: "",
-      time: "",
-      searchText: "",
-      page,
-      limit: PAGE_SIZE,
-    });
+    const data = await fetchJson<PagedResponse>("/gallery/published", { page, limit: PAGE_SIZE });
 
-    const items = data?.gallery ?? [];
+    const items = data?.galleries ?? [];
     if (!items.length) break;
 
     for (const item of items) {
-      if (!item.newsId) continue;
-
+      if (!item.slug) continue;
       entries.push({
-        url: toAbsolute(`/gallery/${item.newsId}`),
+        url: toAbsolute(`/gallery/${item.slug}`),
         lastModified: toDate(item.updatedAt || item.createdAt),
         changeFrequency: "daily",
         priority: 0.8,
       });
-
       if (entries.length >= MAX_ITEMS) break;
     }
 
     if (entries.length >= MAX_ITEMS) break;
-
-    const totalPages = data?.pagination?.totalPages;
+    const totalPages = data?.pagination?.pages;
     if (typeof totalPages === "number" && page >= totalPages) break;
   }
 
@@ -166,33 +130,24 @@ async function getVideoUrls(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
   for (let page = 1; page <= MAX_PAGES; page += 1) {
-    const data = await fetchJson<PagedResponse<VideoItem>>("/videos/filter", {
-      category: "",
-      time: "",
-      searchText: "",
-      page,
-      limit: PAGE_SIZE,
-    });
+    const data = await fetchJson<PagedResponse>("/videos/published", { page, limit: PAGE_SIZE });
 
     const items = data?.videos ?? [];
     if (!items.length) break;
 
     for (const item of items) {
-      if (!item.newsId) continue;
-
+      if (!item.slug) continue;
       entries.push({
-        url: toAbsolute(`/videos/v/${item.newsId}`),
+        url: toAbsolute(`/videos/v/${item.slug}`),
         lastModified: toDate(item.updatedAt || item.createdAt),
         changeFrequency: "daily",
         priority: 0.7,
       });
-
       if (entries.length >= MAX_ITEMS) break;
     }
 
     if (entries.length >= MAX_ITEMS) break;
-
-    const totalPages = data?.pagination?.totalPages;
+    const totalPages = data?.pagination?.pages;
     if (typeof totalPages === "number" && page >= totalPages) break;
   }
 
@@ -217,14 +172,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     staticUrl("/gallery", "daily", 0.8),
     staticUrl("/videos", "daily", 0.8),
     staticUrl("/search", "daily", 0.5),
-    staticUrl("/c/movies", "hourly", 0.9),
-    staticUrl("/c/news", "hourly", 0.9),
+    staticUrl("/c/general", "hourly", 0.9),
     staticUrl("/c/politics", "hourly", 0.9),
+    staticUrl("/c/movies", "hourly", 0.9),
     staticUrl("/c/gossips", "hourly", 0.9),
-    staticUrl("/c/ott", "hourly", 0.8),
-    staticUrl("/c/gallery", "daily", 0.7),
-    staticUrl("/c/videos", "daily", 0.7),
     staticUrl("/c/reviews", "hourly", 0.8),
+    staticUrl("/c/ott", "hourly", 0.8),
     staticUrl("/c/sports", "hourly", 0.8),
     staticUrl("/c/technology", "hourly", 0.8),
     staticUrl("/c/business", "hourly", 0.8),

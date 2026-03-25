@@ -3,73 +3,85 @@
 import styles from "./Reactions.module.css";
 import Image from "next/image";
 import { toast } from "sonner";
-import { startTransition, useState } from "react";
-import { useRouter } from "next/navigation";
-
+import { useEffect, useState } from "react";
 import { useUserStore } from "@/store/useUserStore";
-import { addNewsReaction, addGalleryReaction } from "@/lib/requests-client";
+import { toggleReaction, getMyReaction } from "@/lib/requests-client";
 import AuthPopupWrapper from "@/components/common/popups/auth/AuthPopupWrapper";
-
-/* ---------------- types ---------------- */
+import type { ReactionSummary } from "@/types";
+import { api } from "@/lib/api";
 
 interface Props {
   newsId: string;
-  isGallery?: boolean;
+  targetModel?: "News" | "Gallery";
 }
 
-/* ---------------- config ---------------- */
-
 const REACTIONS = [
-  { type: "Happy", label: "సంతోషం", img: "/images/reactions/happy.png" },
-  { type: "Normal", label: "సాధారణ", img: "/images/reactions/normal.png" },
-  { type: "Amused", label: "నవ్వించారు", img: "/images/reactions/amused.png" },
-  { type: "Funny", label: "హాస్యాస్పదం", img: "/images/reactions/funny.png" },
-  { type: "Angry", label: "కోపం", img: "/images/reactions/angry.png" },
-  { type: "Sad", label: "దుఃఖం", img: "/images/reactions/sad.png" },
+  { type: "happy", label: "సంతోషం", img: "/images/reactions/happy.png" },
+  { type: "normal", label: "సాధారణ", img: "/images/reactions/normal.png" },
+  { type: "amused", label: "నవ్వించారు", img: "/images/reactions/amused.png" },
+  { type: "funny", label: "హాస్యాస్పదం", img: "/images/reactions/funny.png" },
+  { type: "angry", label: "కోపం", img: "/images/reactions/angry.png" },
+  { type: "sad", label: "దుఃఖం", img: "/images/reactions/sad.png" },
 ];
 
-/* ---------------- component ---------------- */
-
-export default function Reactions({ newsId, isGallery }: Props) {
+export default function Reactions({ newsId, targetModel = "News" }: Props) {
   const [isJoin, setIsJoin] = useState(false);
-  const router = useRouter();
+  const [summary, setSummary] = useState<ReactionSummary>({});
+  const [myReaction, setMyReaction] = useState<string | null>(null);
+  const user = useUserStore((s) => s.user);
 
-  const { user, reactions, addReaction, removeReaction } = useUserStore();
+  // Fetch reaction summary
+  useEffect(() => {
+    api.get(`/reactions/${targetModel}/${newsId}/summary`)
+      .then((res) => {
+        if (res.data?.success) setSummary(res.data.summary || {});
+      })
+      .catch(() => {});
+  }, [newsId, targetModel]);
+
+  // Fetch my reaction
+  useEffect(() => {
+    if (!user) return;
+    getMyReaction(targetModel, newsId)
+      .then((res) => {
+        if (res.data?.success) setMyReaction(res.data.type || null);
+      })
+      .catch(() => {});
+  }, [newsId, targetModel, user]);
 
   const handleReact = async (type: string) => {
     if (!user) {
-      toast.error("Login required");
+      toast.error("దయచేసి లాగిన్ చేయండి");
       setIsJoin(true);
       return;
     }
 
-    const apiCall = isGallery ? addGalleryReaction : addNewsReaction;
+    const prevSummary = { ...summary };
+    const prevMyReaction = myReaction;
 
-    /* optimistic update */
-    addReaction({
-      userId: user._id,
-      type,
-      _id: "temp",
-    });
+    // Optimistic update
+    const newSummary = { ...summary };
+    if (myReaction) {
+      newSummary[myReaction] = Math.max(0, (newSummary[myReaction] || 0) - 1);
+    }
+    if (myReaction !== type) {
+      newSummary[type] = (newSummary[type] || 0) + 1;
+      setMyReaction(type);
+    } else {
+      setMyReaction(null);
+    }
+    setSummary(newSummary);
 
     try {
-      await apiCall(newsId, {
-        userId: user._id,
-        type,
-      });
+      await toggleReaction({ target: newsId, targetModel, type });
     } catch {
-      removeReaction({ userId: user._id });
-      toast.error("Failed to react");
-      return;
+      setSummary(prevSummary);
+      setMyReaction(prevMyReaction);
+      toast.error("స్పందన విఫలమైంది");
     }
-
-    /* soft refresh to sync counts */
-    startTransition(() => {
-      router.refresh();
-    });
   };
 
-  const total = reactions.length;
+  const total = Object.values(summary).reduce((a, b) => a + b, 0);
 
   return (
     <>
@@ -80,12 +92,9 @@ export default function Reactions({ newsId, isGallery }: Props) {
 
         <div className={styles.grid}>
           {REACTIONS.map((r) => {
-            const count = reactions.filter((x) => x.type === r.type).length;
+            const count = summary[r.type] || 0;
             const percent = total ? Math.round((count / total) * 100) : 0;
-
-            const isSelected = reactions.find(
-              (x) => x.userId === user?._id && x.type === r.type,
-            );
+            const isSelected = myReaction === r.type;
 
             return (
               <button

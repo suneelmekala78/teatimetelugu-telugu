@@ -3,7 +3,6 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-
 import styles from "./page.module.css";
 import Suggestions from "@/components/search/Suggestions";
 import SearchBar from "@/components/search/SearchBar";
@@ -13,75 +12,45 @@ import NoResults from "@/components/search/NoResults";
 
 interface Props {
   initialQuery: string;
-  initialItems: any[];
-  initialPagination: any;
+  initialItems: unknown[];
+  initialTotal: number;
   failed: boolean;
 }
 
-const getUniqueItemKey = (item: any) => {
-  const base = item?.newsId || item?._id || "unknown";
-  const type = item?.type || "news";
-  return `${type}:${base}`;
-};
-
-const dedupeItems = (items: any[]) => {
-  const seen = new Set<string>();
-  const unique: any[] = [];
-
-  for (const item of items || []) {
-    const key = getUniqueItemKey(item);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    unique.push(item);
-  }
-
-  return unique;
-};
-
-export default function SearchClient({
-  initialQuery,
-  initialItems,
-  initialPagination,
-  failed,
-}: Props) {
+export default function SearchClient({ initialQuery, initialItems, initialTotal, failed }: Props) {
   const router = useRouter();
 
   const [query, setQuery] = useState(initialQuery);
   const [items, setItems] = useState(initialItems);
-  const [page, setPage] = useState(initialPagination?.currentPage || 1);
-  const [hasMore, setHasMore] = useState(initialPagination?.hasNext || false);
-  const [total, setTotal] = useState(initialPagination?.totalResults || 0);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(initialTotal);
   const [hasFailed, setHasFailed] = useState(failed);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-
   const [isPending, startTransition] = useTransition();
+
   const limit = 9;
   const hasQuery = query.trim().length > 0;
   const canSearch = query.trim().length >= 3;
   const isBusy = isSearching || isPending;
+  const hasMore = items.length < total;
 
   useEffect(() => {
     setQuery(initialQuery);
-    setItems(dedupeItems(initialItems || []));
-    setPage(initialPagination?.currentPage || 1);
-    setHasMore(initialPagination?.hasNext || false);
-    setTotal(initialPagination?.totalResults || 0);
+    setItems(initialItems);
+    setPage(1);
+    setTotal(initialTotal);
     setHasFailed(failed);
     setIsSearching(false);
-  }, [initialQuery, initialItems, initialPagination, failed]);
-
-  /* ---------------- SEARCH ---------------- */
+  }, [initialQuery, initialItems, initialTotal, failed]);
 
   const handleSearch = (term: string) => {
     const clean = term.trim();
-
     setHasFailed(false);
     setIsSearching(true);
     setQuery(clean);
     setItems([]);
     setPage(1);
-    setHasMore(false);
     setTotal(0);
 
     startTransition(() => {
@@ -90,44 +59,43 @@ export default function SearchClient({
     });
   };
 
-  /* ---------------- LOAD MORE ---------------- */
-
   const handleLoadMore = async () => {
-    if (!hasMore || isPending || isSearching || isLoadingMore) return;
+    if (!hasMore || isBusy || isLoadingMore) return;
 
     const nextPage = page + 1;
-
     try {
       setIsLoadingMore(true);
-      const res: any = await api({
-        url: `/news/search?query=${encodeURIComponent(query)}&page=${nextPage}&limit=${limit}&type=all`,
+      const res = await api.get("/search", {
+        params: { q: query, page: nextPage, limit },
       });
 
-      if (res?.status !== "success") {
+      if (!res.data?.success) {
         setHasFailed(true);
         return;
       }
 
-      setItems((prev) => dedupeItems([...prev, ...(res?.results || [])]));
+      const newHits: unknown[] = [];
+      let newTotal = 0;
+      if (res.data.results) {
+        for (const r of res.data.results) {
+          const type = r.index === "gallery" ? "gallery" : r.index === "videos" ? "video" : "news";
+          const tagged = (r.hits || []).map((h: any) => ({ ...h, type }));
+          newHits.push(...tagged);
+          newTotal += r.total || 0;
+        }
+      } else {
+        newHits.push(...(res.data.hits || []));
+        newTotal = res.data.total || 0;
+      }
+      setItems((prev) => [...prev, ...newHits]);
       setPage(nextPage);
-      setHasMore(res?.pagination?.hasNext || false);
-      setTotal(res?.pagination?.totalResults || total);
+      setTotal(newTotal);
     } catch {
       setHasFailed(true);
-      console.error("Pagination failed");
     } finally {
       setIsLoadingMore(false);
     }
   };
-
-  /* ---------------- UI ---------------- */
-
-  // if (!query) return <Suggestions />;
-
-  // if (failed) return <p>Something went wrong</p>;
-
-  // if (query.length < 3)
-  //   return <p className={styles.info}>Enter minimum 3 letters</p>;
 
   return (
     <>
@@ -136,9 +104,7 @@ export default function SearchClient({
       {!hasQuery && <Suggestions />}
 
       {hasQuery && !canSearch && (
-        <p className={`${styles.statusCard} ${styles.info}`}>
-          కనీసం 3 అక్షరాలు ఇవ్వండి
-        </p>
+        <p className={`${styles.statusCard} ${styles.info}`}>కనీసం 3 అక్షరాలు ఇవ్వండి</p>
       )}
 
       {isBusy && canSearch && (
@@ -158,24 +124,16 @@ export default function SearchClient({
 
       {!isBusy && canSearch && !hasFailed && (
         <div className={styles.resultsMeta}>
-          <p className={styles.resultsLabel}>
-            <span className={styles.queryPill}>"{query}"</span> కోసం ఫలితాలు
-          </p>
-          <p className={styles.resultsCount}>
-            <span className={styles.countPill}>{total}</span> దొరికాయి
-          </p>
+          <p className={styles.resultsLabel}><span className={styles.queryPill}>"{query}"</span> కోసం ఫలితాలు</p>
+          <p className={styles.resultsCount}><span className={styles.countPill}>{total}</span> దొరికాయి</p>
         </div>
       )}
 
       {items.length > 0 && <SearchGrid items={items} />}
 
-      {hasMore && (
-        <LoadMore isLoading={isLoadingMore} onLoadMore={handleLoadMore} />
-      )}
+      {hasMore && <LoadMore isLoading={isLoadingMore} onLoadMore={handleLoadMore} />}
 
-      {canSearch && !hasFailed && !isBusy && items.length === 0 && (
-        <NoResults text={query} />
-      )}
+      {canSearch && !hasFailed && !isBusy && items.length === 0 && <NoResults text={query} />}
     </>
   );
 }

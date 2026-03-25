@@ -12,8 +12,8 @@ interface Props {
   news: {
     _id: string;
     title: { te: string };
-    description: { en: string };
-    newsAudio?: { te?: string };
+    description: { en: { text: string; html: string } };
+    audio?: { te?: string | null };
   };
 }
 
@@ -71,7 +71,7 @@ export default function ReadButton({ news }: Props) {
 
     /* ✅ Load audio ONLY first time */
     if (!audioUrl) {
-      const base64 = news.newsAudio?.te;
+      const base64 = news.audio?.te;
 
       if (!base64) {
         toast.error("Audio unavailable");

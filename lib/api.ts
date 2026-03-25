@@ -3,57 +3,73 @@
 import axios from "axios";
 import { useUserStore } from "@/store/useUserStore";
 
-export const API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true, // VERY IMPORTANT
+const API_BASE = process.env.NEXT_PUBLIC_API_URL!;
+
+export const api = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
 });
 
-/* ---------- refresh logic ---------- */
+/* ── attach access token ── */
+
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+/* ── 401 → single refresh attempt ── */
 
 let isRefreshing = false;
-let queue: any[] = [];
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (err: unknown) => void;
+}> = [];
 
-const processQueue = (error: any) => {
-  queue.forEach((p) => {
+function processQueue(error: unknown, token: string | null) {
+  failedQueue.forEach((p) => {
     if (error) p.reject(error);
-    else p.resolve();
+    else p.resolve(token!);
   });
-  queue = [];
-};
+  failedQueue = [];
+}
 
-API.interceptors.response.use(
+api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
 
-    if (
-      error.response?.status === 401 &&
-      !original._retry
-    ) {
-      original._retry = true;
-
+    if (error.response?.status === 401 && !original._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
-          queue.push({
-            resolve: () => resolve(API(original)),
-            reject,
-          });
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          original.headers.Authorization = `Bearer ${token}`;
+          return api(original);
         });
       }
 
+      original._retry = true;
       isRefreshing = true;
 
       try {
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
+        const { data } = await axios.post(
+          `${API_BASE}/auth/refresh`,
           {},
-          { withCredentials: true } // browser stores new cookies here
+          { withCredentials: true },
         );
-
-        processQueue(null);
-        return API(original);
+        const newToken: string = data.accessToken;
+        localStorage.setItem("accessToken", newToken);
+        processQueue(null, newToken);
+        original.headers.Authorization = `Bearer ${newToken}`;
+        return api(original);
       } catch (err) {
-        processQueue(err);
+        processQueue(err, null);
+        localStorage.removeItem("accessToken");
         useUserStore.getState().logout();
         return Promise.reject(err);
       } finally {
@@ -62,18 +78,5 @@ API.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
-
-export const api = async <T = any>({
-  url,
-  method = "GET",
-  data,
-}: {
-  url: string;
-  method?: "GET" | "POST" | "PUT" | "DELETE";
-  data?: any;
-}): Promise<T> => {
-  const res = await API({ url, method, data });
-  return res.data;
-};

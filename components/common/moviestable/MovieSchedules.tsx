@@ -1,22 +1,11 @@
 import MovieTabsTableClient from "./MovieTabsTableClient";
-import { getMovieReleases } from "@/lib/requests-server";
+import type { MovieEntry } from "@/types";
 
 interface Props {
-  rows?: any[];
+  rows?: MovieEntry[];
 }
 
-export default async function MovieSchedules({ rows: propRows }: Props) {
-  let rows: any[] = propRows || [];
-
-  if (!propRows) {
-    try {
-      const res = await getMovieReleases();
-      if (res?.status === "success") {
-        rows = res.movieReleases || [];
-      }
-    } catch {}
-  }
-
+export default function MovieSchedules({ rows = [] }: Props) {
   return (
     <MovieTabsTableClient
       title="సినిమా విడుదలలు"
@@ -24,9 +13,9 @@ export default async function MovieSchedules({ rows: propRows }: Props) {
         { label: "సినిమా", value: "movie" },
         { label: "ఓటీటీ", value: "ott" },
       ]}
-      rows={rows}
+      rows={rows as any[]}
       nameKey="movie"
-      valueKey="date"
+      valueKey="releaseDate"
     />
   );
 }

@@ -13,10 +13,17 @@ export default function AuthBootstrap({
   const logout = useUserStore((s) => s.logout);
 
   useEffect(() => {
-    api({ url: "/user/me" })
-      .then((res: any) => {
-        if (res?.user) login(res.user);
-        else logout();
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
+
+    api
+      .get("/auth/me")
+      .then((res) => {
+        if (res.data?.success && res.data.user) {
+          login(res.data.user);
+        } else {
+          logout();
+        }
       })
       .catch(() => logout());
   }, [login, logout]);

@@ -1,20 +1,36 @@
 import styles from "./VideoView.module.css";
+import { Suspense } from "react";
 import LatestStories from "@/components/common/lateststories/LatestStories";
-import SectionTitle from "@/components/common/titles/SectionTitle";
-import SmartAdUnit from "@/components/google-ads/SmartAdUnit";
-import AdBlock from "@/components/google-ads/AdBlock";
 import Social from "@/components/news/social/Social";
 import NewsShare from "@/components/common/share/NewsShare";
-import Link from "next/link";
+import SmartAdUnit from "@/components/google-ads/SmartAdUnit";
+import AdBlock from "@/components/google-ads/AdBlock";
+import SuggestedVideos from "@/components/news/suggestedvideos/SuggestedVideos";
 import { FaCalendarAlt } from "react-icons/fa";
+import type { Video } from "@/types";
+
+function getEmbedUrl(url: string) {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtube.com") && u.searchParams.get("v")) {
+      return `https://www.youtube.com/embed/${u.searchParams.get("v")}`;
+    }
+    if (u.hostname === "youtu.be") {
+      return `https://www.youtube.com/embed${u.pathname}`;
+    }
+  } catch {
+    /* not a url */
+  }
+  return url;
+}
 
 type Props = {
-  video: any;
-  suggested: any[];
-  similar: any[];
+  video: Video;
+  related: Video[];
+  suggested: Video[];
 };
 
-export default function VideoView({ video, suggested, similar }: Props) {
+export default function VideoView({ video, related, suggested }: Props) {
   const date = new Date(video.createdAt);
 
   const time = new Intl.DateTimeFormat("te-IN", {
@@ -33,7 +49,6 @@ export default function VideoView({ video, suggested, similar }: Props) {
 
   return (
     <main className={styles.wrapper}>
-      {/* ===== LEFT ===== */}
       <section className={styles.left}>
         <h1 className={styles.title}>
           <span className={styles.label}>వీడియో:</span>
@@ -42,91 +57,33 @@ export default function VideoView({ video, suggested, similar }: Props) {
 
         <div className={styles.metaflex}>
           <div className={styles.meta}>
-            <span>
-              <FaCalendarAlt /> {formattedDate}
-            </span>
+            <span><FaCalendarAlt /> {formattedDate}</span>
           </div>
-
           <NewsShare title={video?.title?.te || "వీడియో"} />
         </div>
 
-        {/* VIDEO */}
         <div className={styles.player}>
           <iframe
-            src={video?.videoUrl}
+            src={getEmbedUrl(video?.videoUrl)}
             title={video?.title?.te}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
         </div>
-        
-        {/* DH AD */}
-        <AdBlock>
-          <SmartAdUnit
-            slot="3315432893"
-          />
-        </AdBlock>
 
-        {/* RELATED */}
-        {similar.length > 0 && (
-          <div className={styles.related}>
-            <SectionTitle title="సంబంధిత వీడియోలు" />
-
-            <div className={styles.relatedGrid}>
-              {similar.map((item: any) => (
-                <Link
-                  key={item._id}
-                  href={`/videos/v/${item.newsId}`}
-                  className={styles.card}
-                >
-                  <img src={item.mainUrl} alt="" />
-                  <h4>{item.title?.te}</h4>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-        {/* DH AD */}
-        <AdBlock>
-          <SmartAdUnit slot="3315432893" />
-        </AdBlock>
-
-        {/* SUGGESTED */}
-        {suggested.length > 0 && (
-          <div className={styles.suggested}>
-            <SectionTitle title="సిఫార్సు చేసిన వీడియోలు" />
-
-            <div className={styles.suggestedGrid}>
-              {suggested.map((item: any) => (
-                <Link
-                  key={item._id}
-                  href={`/videos/v/${item.newsId}`}
-                  className={styles.suggestedCard}
-                >
-                  <img src={item.mainUrl} alt="" />
-                  <h4>{item.title?.te}</h4>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-        {/* MH AD */}
-        <AdBlock>
-          <SmartAdUnit slot="9182003090" />
-        </AdBlock>
+        <SuggestedVideos items={related} title="సంబంధిత వీడియోలు" />
+        <AdBlock><SmartAdUnit slot="3315432893" /></AdBlock>
+        <SuggestedVideos items={suggested} title="సూచించబడిన వీడియోలు" />
+        <AdBlock><SmartAdUnit slot="9182003090" /></AdBlock>
       </section>
 
-      {/* ===== RIGHT SIDEBAR ===== */}
       <aside className={styles.right}>
         <Social />
-        {/* DS AD */}
-        <AdBlock>
-          <SmartAdUnit slot="9180743912" />
-        </AdBlock>
-        <LatestStories />
-        {/* MV AD */}
-        <AdBlock>
-          <SmartAdUnit slot="6909803795" />
-        </AdBlock>
+        <AdBlock><SmartAdUnit slot="9180743912" /></AdBlock>
+        <Suspense fallback={<div style={{ padding: 20 }}>తాజా కథనాలు లోడ్ అవుతున్నాయి...</div>}>
+          <LatestStories />
+        </Suspense>
+        <AdBlock><SmartAdUnit slot="6909803795" /></AdBlock>
       </aside>
     </main>
   );

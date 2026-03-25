@@ -1,24 +1,24 @@
-import { getVideo } from "@/lib/requests-server";
+import { getVideoBySlug } from "@/lib/requests-server";
 import VideoView from "./VideoView";
 import { notFound } from "next/navigation";
+import type { Video } from "@/types";
 
 type Props = {
   params: Promise<{ vid: string }>;
 };
 
-/* ========= SEO ========= */
 export async function generateMetadata({ params }: Props) {
   const { vid } = await params;
 
   try {
-    const res = await getVideo(vid);
+    const res = await getVideoBySlug(vid);
 
-    if (res?.status === "success") {
+    if (res?.success && res.video) {
       return {
-        title: res.video?.title?.te,
-        description: res.video?.title?.te,
+        title: res.video.title?.te,
+        description: res.video.title?.te,
         openGraph: {
-          images: [res.video?.mainUrl],
+          images: [res.video.thumbnail],
         },
       };
     }
@@ -27,21 +27,35 @@ export async function generateMetadata({ params }: Props) {
   return { title: "టీ టైం తెలుగు" };
 }
 
-/* ========= PAGE ========= */
 export default async function Page({ params }: Props) {
   const { vid } = await params;
 
-  const res = await getVideo(vid);
+  let video: Video | null = null;
+  let relatedVideos: Video[] = [];
+  let suggestedVideos: Video[] = [];
 
-  if (!res?.status) {
-    notFound();
-  }
+  try {
+    const res = await getVideoBySlug(vid);
+    if (res?.success) {
+      video = res.video;
+    }
+  } catch {}
 
-  return (
-    <VideoView
-      video={res.video}
-      suggested={res.suggestedVideos || []}
-      similar={res.similarVideos || []}
-    />
-  );
+  if (!video) notFound();
+
+  try {
+    const { getRelatedVideos, getLatestVideos } = await import("@/lib/requests-server");
+    const [relRes, sugRes] = await Promise.all([
+      getRelatedVideos(video._id),
+      getLatestVideos(),
+    ]);
+    if (relRes?.success) {
+      relatedVideos = relRes.videos || [];
+    }
+    if (sugRes?.success) {
+      suggestedVideos = (sugRes.videos || []).filter((v: Video) => v._id !== video!._id);
+    }
+  } catch {}
+
+  return <VideoView video={video} related={relatedVideos} suggested={suggestedVideos} />;
 }
