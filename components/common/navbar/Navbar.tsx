@@ -16,7 +16,7 @@ import { logoutUser } from "@/lib/requests-client";
 
 const NAV_ITEMS = [
   { href: "/", label: "హోమ్" },
-  { href: "/c/general", label: "జనరల్" },
+  { href: "/c/news", label: "జనరల్" },
   { href: "/c/politics", label: "రాజకీయం" },
   { href: "/c/movies", label: "సినిమా" },
   { href: "/c/gossips", label: "గాసిప్స్" },
