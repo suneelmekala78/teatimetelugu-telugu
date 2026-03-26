@@ -33,7 +33,7 @@ import {
   MovieTableSkeleton,
 } from "@/components/home/skeletons/HomeSectionSkeletons";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30; // revalidate every 30 seconds
 
 export default async function Home() {
   const res = await getHomeConfig();

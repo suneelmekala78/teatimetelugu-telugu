@@ -55,16 +55,56 @@
   line-height: 1.7;
 }
 
-.content img,
-.content video,
-.content iframe {
+.content img {
   width: 100%;
-  border-radius: 2px;
-  margin: 10px 0;
+  border-radius: 8px;
+  margin: 16px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.content video {
+  width: 100%;
+  border-radius: 8px;
+  margin: 16px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .content iframe {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  margin: 16px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   height: 400px;
+}
+
+/* YouTube embeds */
+.content iframe[src*="youtube.com"] {
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
+
+/* Twitter/X embeds */
+.content iframe[src*="twitter.com"],
+.content iframe[src*="x.com"] {
+  max-width: 550px;
+  height: 450px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+}
+
+/* Instagram embeds */
+.content iframe[src*="instagram.com"] {
+  max-width: 540px;
+  height: 580px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
 }
 
 .content p {
@@ -117,6 +157,21 @@
 
   .content iframe {
     height: 200px;
+  }
+
+  .content iframe[src*="youtube.com"] {
+    height: auto;
+  }
+
+  .content iframe[src*="twitter.com"],
+  .content iframe[src*="x.com"] {
+    max-width: 100%;
+    height: 400px;
+  }
+
+  .content iframe[src*="instagram.com"] {
+    max-width: 100%;
+    height: 500px;
   }
 
   .metaflex {
