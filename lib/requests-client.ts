@@ -10,6 +10,24 @@ export const logoutUser = () =>
 export const loginUser = (data: { email: string; password: string }) =>
   api.post("/auth/login", data);
 
+export const registerUser = (data: { fullName: string; email: string; password: string }) =>
+  api.post("/auth/register", data);
+
+export const verifyRegistration = (data: { fullName: string; email: string; password: string; code: string }) =>
+  api.post("/auth/verify-registration", data);
+
+export const googleAuth = (data: { idToken: string }) =>
+  api.post("/auth/google", data);
+
+export const forgotPassword = (data: { email: string }) =>
+  api.post("/auth/forgot-password", data);
+
+export const verifyOtp = (data: { email: string; code: string }) =>
+  api.post("/auth/verify-otp", data);
+
+export const resetPassword = (data: { email: string; code: string; newPassword: string }) =>
+  api.post("/auth/reset-password", data);
+
 /* ================= CONTACT ================= */
 
 export const submitContact = (data: {
